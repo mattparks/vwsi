@@ -1,0 +1,58 @@
+cmake_minimum_required (VERSION 3.1)
+project (VulkanWSI)
+
+# Preprocessor
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+	add_definitions(-DVKTESTING_VERBOSE)
+	add_definitions(-DVKTESTING_CONFIG_DEBUG)
+elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+	add_definitions(-DVKTESTING_CONFIG_RELEASE)
+elseif("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+	set(CMAKE_BUILD_TYPE "Release")
+	add_definitions(-DVKTESTING_CONFIG_RELEASE)
+endif()
+
+if(WIN32)
+	add_definitions(-DVKTESTING_PLATFORM_WINDOWS)
+elseif(UNIX AND NOT APPLE)
+	add_definitions(-DVKTESTING_PLATFORM_LINUX)
+elseif(UNIX AND APPLE)
+	add_definitions(-DVKTESTING_PLATFORM_MACOS)
+endif()
+
+# Compiler Options
+message(STATUS "System: ${CMAKE_SYSTEM}")
+message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+
+if(MSVC)
+    add_definitions(-DVKTESTING_COMPILER_MSVC)
+    add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DWIN32 /D_WINDOWS /Ox /Ob2 /Oi /Ot /GT /GF /GS- /fp:fast /fp:except- /MP /W3 /wd4251")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_definitions(-DVKTESTING_COMPILER_CLANG)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall") # -Werror -pedantic
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") # -s
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -O0")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_definitions(-DVKTESTING_COMPILER_GNU)
+	add_definitions(-D__USE_MINGW_ANSI_STDIO=0)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -Wall") # -Werror -pedantic
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -O3")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -O0")
+endif()
+
+# Output Directories
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/bin)
+
+# Dependencies
+include(Libraries/FindVulkan.cmake)
+
+# Sources
+add_subdirectory(Sources)
