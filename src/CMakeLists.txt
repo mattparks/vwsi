@@ -1,9 +1,14 @@
-include(CMakeSources.cmake)
-#project(vulkanwsi)
+set(WSI_HEADERS
+        "../include/wsi/vulkan_wsi.h"
+        )
+
+set(WSI_SOURCES
+        "vulkan_wsi.c"
+        )
 
 set(WSI_INCLUDES "${PROJECT_SOURCE_DIR}/include/")
 
-add_library(vulkanwsi ${LIB_TYPE} ${WSI_SOURCES})
+add_library(vulkanwsi ${LIB_TYPE} ${WSI_HEADERS} ${WSI_SOURCES})
 
 set_target_properties(vulkanwsi PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -12,16 +17,6 @@ set_target_properties(vulkanwsi PROPERTIES
 if(WIN32 AND BUILD_SHARED_LIBS)
     set_target_properties(vulkanwsi PROPERTIES PREFIX "")
 endif()
-
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(vulkanwsi PUBLIC
-            -DWSI_EXPORTS
-            )
-else ()
-    target_compile_definitions(vulkanwsi PUBLIC
-            -DWSI_STATICLIB
-            )
-endif ()
 
 target_include_directories(vulkanwsi PUBLIC ${LIBRARIES_INCLUDES} ${WSI_INCLUDES})
 target_link_libraries(vulkanwsi PRIVATE ${LIBRARIES_LINKS})
@@ -34,7 +29,7 @@ if (WSI_INSTALL)
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
             )
 
-    foreach (file ${WSI_HEADERS_})
+    foreach (file ${WSI_HEADERS})
         get_filename_component(dir ${file} DIRECTORY)
         install(FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wsi/${dir})
     endforeach ()
