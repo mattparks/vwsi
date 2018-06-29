@@ -4,36 +4,55 @@
 #include <stdio.h>
 #include <assert.h>
 
+WsiCallbacks callbacks_;
 HINSTANCE hinstance_;
 HWND hwnd_;
 HMODULE hmodule_;
-WsiCallbacks callbacks_;
 PFN_vkGetInstanceProcAddr vkproc_;
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	WsiShell shell = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	WsiShell shell = (WsiShell)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-	if (!shell) {
+	if (!shell)
+	{
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	switch (uMsg) {
-	case WM_SIZE: {
+	switch (uMsg)
+	{
+	case WM_SIZE:
+	{
 		UINT w = LOWORD(lParam);
 		UINT h = HIWORD(lParam);
-		callbacks_.size(shell, w, h, false);
-	} break;
-	case WM_KEYDOWN: {
-	} break;
+		if (!callbacks_.size)
+		{
+			callbacks_.size(shell, w, h, false);
+		}
+	}
+	break;
+	case WM_KEYDOWN:
+	{
+	}
+	break;
 	case WM_CLOSE:
-		callbacks_.close(shell);
-		break;
+	{
+		if (!callbacks_.close)
+		{
+			callbacks_.close(shell);
+		}
+	}
+	break;
 	case WM_DESTROY:
-		break;
+	{
+
+	}
+	break;
 	default:
+	{
 		return DefWindowProc(hwnd_, uMsg, wParam, lParam);
-		break;
+	}
+	break;
 	}
 
 	return 0;
@@ -50,28 +69,23 @@ void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *monitorPr
 
 VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
 {
+	WsiShell shell = (WsiShell)calloc(1, sizeof(WsiShell));
+
 	callbacks_ = *pCreateInfo->pCallbacks;
 
-
 	const char filename[] = "vulkan-1.dll";
-	HMODULE mod;
+	hmodule_ = LoadLibrary(filename);
 	vkproc_ = NULL;
 
-	mod = LoadLibrary(filename);
-
-	if (mod)
+	if (hmodule_)
 	{
-		vkproc_ = (PFN_vkGetInstanceProcAddr)GetProcAddress(mod, "vkGetInstanceProcAddr");
+		vkproc_ = (PFN_vkGetInstanceProcAddr)GetProcAddress(hmodule_, "vkGetInstanceProcAddr");
 	}
 
-	if (!mod || !vkproc_)
+	if (!hmodule_ || !vkproc_)
 	{
 		assert("Failed to load Vulkan!");
 	}
-
-	hmodule_ = mod;
-
-	pShell = malloc(sizeof(WsiShell));
 
 	hinstance_ = GetModuleHandle(NULL);
 
@@ -93,8 +107,9 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
 		win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, NULL, NULL, hinstance_, NULL);
 
 	SetForegroundWindow(hwnd_);
-	SetWindowLongPtr(hwnd_, GWLP_USERDATA, (LONG_PTR)pShell);
+	SetWindowLongPtr(hwnd_, GWLP_USERDATA, (LONG_PTR)shell);
 
+	pShell = &shell;
 	return VK_SUCCESS;
 }
 

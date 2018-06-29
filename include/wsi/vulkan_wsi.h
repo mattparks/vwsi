@@ -294,6 +294,24 @@ VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetIcon(WsiShell shell, const WsiIcon *icon
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, bool fullscreen);
 
+struct WsiShell_T
+{
+	WsiCallbacks callbacks_;
+
+//	char keys[WSI_KEY_LAST];
+//	char mouseButtons[WSI_MOUSE_LAST];
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+#elif VK_USE_PLATFORM_WAYLAND_KHR
+#elif VK_USE_PLATFORM_WIN32_KHR
+//	HINSTANCE hinstance_;
+//	HWND hwnd_;
+//	HMODULE hmodule_;
+//	PFN_vkGetInstanceProcAddr vkproc_;
+#elif VK_USE_PLATFORM_ANDROID_KHR
+#endif
+};
+
 #ifdef __cplusplus
 }
 #endif
