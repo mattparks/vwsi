@@ -1,8 +1,10 @@
 cmake_minimum_required (VERSION 3.1)
-project (VulkanWSI)
+project (vulkanwsi)
 
 # Options
 option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+option(WSI_INSTALL "Generate installation target" OFF)
+option(WSI_BUILD_TESTING "Build the WSI test programs" ON)
 
 set(LIB_TYPE STATIC)
 
@@ -66,4 +68,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Build/${CMAKE_BUILD_TYP
 include(Libraries/FindVulkan.cmake)
 
 # Sources
-add_subdirectory(Sources)
+add_subdirectory(src)
+
+# Tests
+if (WSI_BUILD_TESTING)
+	add_subdirectory(tests)
+endif()

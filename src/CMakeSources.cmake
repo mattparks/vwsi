@@ -1,12 +1,9 @@
 set(WSI_HEADERS_
-        "Shells/Shell.hpp"
-        "Shells/ShellWin32.hpp"
+        "../include/wsi/vulkan_wsi.h"
 )
 
 set(WSI_SOURCES_
-        "Shells/Shell.cpp"
-        "Shells/ShellWin32.cpp"
-        "Main.cpp"
+        "win32_imp.c"
 )
 
 source_group("Header Files" FILES ${WSI_HEADERS_})
