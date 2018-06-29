@@ -1,333 +1,207 @@
 #pragma once
 
+#include <array>
 #include <string>
+#include "KeyCodes.hpp"
 
-/*enum Mod
+namespace wsi
 {
-	MOD_SHIFT = 0x0001,
-	MOD_CONTROL = 0x0002,
-	MOD_ALT = 0x0004,
-	MOD_SUPER = 0x0008,
-	MOD_CAPS_LOCK = 0x0010,
-	MOD_NUM_LOCK = 0x0020
-};
-
-enum Key
-{
-	KEY_UNKNOWN = -1,
-	KEY_SPACE = 32,
-	KEY_APOSTROPHE = 39,
-	KEY_COMMA = 44,
-	KEY_MINUS = 45,
-	KEY_PERIOD = 46,
-	KEY_SLASH = 47,
-	KEY_0 = 48,
-	KEY_1 = 49,
-	KEY_2 = 50,
-	KEY_3 = 51,
-	KEY_4 = 52,
-	KEY_5 = 53,
-	KEY_6 = 54,
-	KEY_7 = 55,
-	KEY_8 = 56,
-	KEY_9 = 57,
-	KEY_SEMICOLON = 59,
-	KEY_EQUAL = 61,
-	KEY_A = 65,
-	KEY_B = 66,
-	KEY_C = 67,
-	KEY_D = 68,
-	KEY_E = 69,
-	KEY_F = 70,
-	KEY_G = 71,
-	KEY_H = 72,
-	KEY_I = 73,
-	KEY_J = 74,
-	KEY_K = 75,
-	KEY_L = 76,
-	KEY_M = 77,
-	KEY_N = 78,
-	KEY_O = 79,
-	KEY_P = 80,
-	KEY_Q = 81,
-	KEY_R = 82,
-	KEY_S = 83,
-	KEY_T = 84,
-	KEY_U = 85,
-	KEY_V = 86,
-	KEY_W = 87,
-	KEY_X = 88,
-	KEY_Y = 89,
-	KEY_Z = 90,
-	KEY_LEFT_BRACKET = 91,
-	KEY_BACKSLASH = 92,
-	KEY_RIGHT_BRACKET = 93,
-	KEY_GRAVE_ACCENT = 96,
-	KEY_WORLD_1 = 161,
-	KEY_WORLD_2 = 162,
-	KEY_ESCAPE = 256,
-	KEY_ENTER = 257,
-	KEY_TAB = 258,
-	KEY_BACKSPACE = 259,
-	KEY_INSERT = 260,
-	KEY_DELETE = 261,
-	KEY_RIGHT = 262,
-	KEY_LEFT = 263,
-	KEY_DOWN = 264,
-	KEY_UP = 265,
-	KEY_PAGE_UP = 266,
-	KEY_PAGE_DOWN = 267,
-	KEY_HOME = 268,
-	KEY_END = 269,
-	KEY_CAPS_LOCK = 280,
-	KEY_SCROLL_LOCK = 281,
-	KEY_NUM_LOCK = 282,
-	KEY_PRINT_SCREEN = 283,
-	KEY_PAUSE = 284,
-	KEY_F1 = 290,
-	KEY_F2 = 291,
-	KEY_F3 = 292,
-	KEY_F4 = 293,
-	KEY_F5 = 294,
-	KEY_F6 = 295,
-	KEY_F7 = 296,
-	KEY_F8 = 297,
-	KEY_F9 = 298,
-	KEY_F10 = 299,
-	KEY_F11 = 300,
-	KEY_F12 = 301,
-	KEY_F13 = 302,
-	KEY_F14 = 303,
-	KEY_F15 = 304,
-	KEY_F16 = 305,
-	KEY_F17 = 306,
-	KEY_F18 = 307,
-	KEY_F19 = 308,
-	KEY_F20 = 309,
-	KEY_F21 = 310,
-	KEY_F22 = 311,
-	KEY_F23 = 312,
-	KEY_F24 = 313,
-	KEY_F25 = 314,
-	KEY_KP_0 = 320,
-	KEY_KP_1 = 321,
-	KEY_KP_2 = 322,
-	KEY_KP_3 = 323,
-	KEY_KP_4 = 324,
-	KEY_KP_5 = 325,
-	KEY_KP_6 = 326,
-	KEY_KP_7 = 327,
-	KEY_KP_8 = 328,
-	KEY_KP_9 = 329,
-	KEY_KP_DECIMAL = 330,
-	KEY_KP_DIVIDE = 331,
-	KEY_KP_MULTIPLY = 332,
-	KEY_KP_SUBTRACT = 333,
-	KEY_KP_ADD = 334,
-	KEY_KP_ENTER = 335,
-	KEY_KP_EQUAL = 336,
-	KEY_LEFT_SHIFT = 340,
-	KEY_LEFT_CONTROL = 341,
-	KEY_LEFT_ALT = 342,
-	KEY_LEFT_SUPER = 343,
-	KEY_RIGHT_SHIFT = 344,
-	KEY_RIGHT_CONTROL = 345,
-	KEY_RIGHT_ALT = 346,
-	KEY_RIGHT_SUPER = 347,
-	KEY_MENU = 348,
-	KEY_LAST = KEY_MENU
-};
-
-enum MouseButton
-{
-	MOUSE_BUTTON_1 = 0,
-	MOUSE_BUTTON_2 = 1,
-	MOUSE_BUTTON_3 = 2,
-	MOUSE_BUTTON_4 = 3,
-	MOUSE_BUTTON_5 = 4,
-	MOUSE_BUTTON_6 = 5,
-	MOUSE_BUTTON_7 = 6,
-	MOUSE_BUTTON_8 = 7,
-	MOUSE_BUTTON_LAST = MOUSE_BUTTON_8,
-	MOUSE_BUTTON_LEFT = MOUSE_BUTTON_1,
-	MOUSE_BUTTON_RIGHT = MOUSE_BUTTON_2,
-	MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3
-};
-
-enum JoystickPort
-{
-	JOYSTICK_1 = 0,
-	JOYSTICK_2 = 1,
-	JOYSTICK_3 = 2,
-	JOYSTICK_4 = 3,
-	JOYSTICK_5 = 4,
-	JOYSTICK_6 = 5,
-	JOYSTICK_7 = 6,
-	JOYSTICK_8 = 7,
-	JOYSTICK_9 = 8,
-	JOYSTICK_10 = 9,
-	JOYSTICK_11 = 10,
-	JOYSTICK_12 = 11,
-	JOYSTICK_13 = 12,
-	JOYSTICK_14 = 13,
-	JOYSTICK_15 = 14,
-	JOYSTICK_16 = 15,
-	JOYSTICK_LAST = JOYSTICK_16
-};*/
-
-/// <summary>
-/// A class that wraps window and input functionality.
-/// </summary>
-class Shell
-{
-protected:
-	int m_windowWidth;
-	int m_windowHeight;
-	int m_fullscreenWidth;
-	int m_fullscreenHeight;
-	float m_aspectRatio;
-
-	std::string m_title;
-	std::string m_iconPath;
-	bool m_antialiasing;
-	bool m_fullscreen;
-
-	bool m_closed;
-	bool m_focused;
-	int m_windowPosX;
-	int m_windowPosY;
-	bool m_iconified;
-public:
-	Shell();
-
-	virtual ~Shell();
-
-	virtual void Update() = 0;
+	typedef std::array<bool, MODIFIER_LAST> Modifiers;
+	typedef void (* PositionCallback)(int, int);
+	typedef void (* SizeCallback)(int, int);
+	typedef void (* FocusCallback)(bool);
+	typedef void (* IconifyCallback)(bool);
+	typedef void (* CloseCallback)();
+	typedef void (* CursorPositionCallback)(float, float);
+	typedef void (* CursorEnterCallback)(bool);
+	typedef void (* CursorScrollCallback)(float, float);
+	typedef void (* KeyCallback)(Key, Action, Modifiers);
+	typedef void (* MouseButtonCallback)(MouseButton, Action);
+	typedef void (* TouchCallback)(float, float, Action);
+	typedef void (* JoystickConnectCallback)(JoystickPort, std::string, bool);
+	typedef void (* JoystickButtonCallback)(JoystickPort, int, Action);
+	typedef void (* JoystickAxisCallback)(JoystickPort, int, float);
 
 	/// <summary>
-	/// Gets the width of the display in pixels.
+	/// A class that wraps window and input functionality.
 	/// </summary>
-	/// <returns> The width of the display. </returns>
-	int GetWidth() { return m_fullscreen ? m_fullscreenWidth : m_windowWidth; }
+	class Shell
+	{
+	protected:
+		int m_positionX;
+		int m_positionY;
+		int m_width;
+		int m_height;
+		bool m_focused;
+		bool m_iconified;
+		bool m_closed;
 
-	/// <summary>
-	/// Sets the width of the display in pixels.
-	/// </summary>
-	/// <param name="width"> The new width in pixels. </param>
-	void SetWidth(const int &width) { SetWindowSize(width, GetHeight()); }
+		std::string m_title;
+		bool m_fullscreen;
 
-	/// <summary>
-	/// Gets the height of the display in pixels.
-	/// </summary>
-	/// <returns> The height of the display. </returns>
-	int GetHeight() { return m_fullscreen ? m_fullscreenHeight : m_windowHeight; }
 
-	/// <summary>
-	/// Sets the height of the display in pixels.
-	/// </summary>
-	/// <param name="height"> The new height in pixels. </param>
-	void SetHeight(const int &height) { SetWindowSize(GetWidth(), height); }
+		PositionCallback m_callbackPosition;
+		SizeCallback m_callbackSize;
+		FocusCallback m_callbackFocus;
+		IconifyCallback m_callbackIconify;
+		CloseCallback m_callbackClose;
+		CursorPositionCallback m_callbackCursorPosition;
+		CursorEnterCallback m_callbackCursorEnter;
+		CursorScrollCallback m_callbackCursorScroll;
+		KeyCallback m_callbackKey;
+		MouseButtonCallback m_callbackMouseButton;
+		TouchCallback m_callbackTouch;
+		JoystickConnectCallback m_callbackJoystickConnect;
+		JoystickButtonCallback m_callbackJoystickButton;
+		JoystickAxisCallback m_callbackJoystickAxis;
+	public:
+		Shell(const int &width, const int &height, const std::string &title, const bool &resizable);
 
-	/// <summary>
-	/// Sets window size to a new size.
-	/// </summary>
-	/// <param name="width"> The new width in pixels. </param>
-	/// <param name="height"> The new height in pixels. </param>
-	virtual void SetWindowSize(const int &width, const int &height) = 0;
+		~Shell();
 
-	/// <summary>
-	/// Gets the non-fullscreen width of the display in pixels.
-	/// </summary>
-	/// <returns> The width of the display. </returns>
-	int GetWindowWidth() const { return m_windowWidth; }
+		void Update() = 0;
 
-	/// <summary>
-	/// Gets the non-fullscreen height of the display in pixels.
-	/// </summary>
-	/// <returns> The height of the display. </returns>
-	int GetWindowHeight() const { return m_windowHeight; }
+		/// <summary>
+		/// Gets the width of the display in pixels.
+		/// </summary>
+		/// <returns> The width of the display. </returns>
+		int GetWidth() { return m_fullscreen ? m_fullscreenWidth : m_windowWidth; }
 
-	/// <summary>
-	/// Gets the aspect ratio between the displays width and height.
-	/// </summary>
-	/// <returns> The aspect ratio. </returns>
-	float GetAspectRatio() const { return m_aspectRatio; }
+		/// <summary>
+		/// Sets the width of the display in pixels.
+		/// </summary>
+		/// <param name="width"> The new width in pixels. </param>
+		void SetWidth(const int &width) { SetWindowSize(width, GetHeight()); }
 
-	/// <summary>
-	/// Gets the window's title.
-	/// </summary>
-	/// <returns> The window's title. </returns>
-	std::string GetTitle() const { return m_title; }
+		/// <summary>
+		/// Gets the height of the display in pixels.
+		/// </summary>
+		/// <returns> The height of the display. </returns>
+		int GetHeight() { return m_fullscreen ? m_fullscreenHeight : m_windowHeight; }
 
-	/// <summary>
-	/// Sets window title
-	/// </summary>
-	/// <param name="title"> The new title. </param>
-	virtual void SetTitle(const std::string &title) = 0;
+		/// <summary>
+		/// Sets the height of the display in pixels.
+		/// </summary>
+		/// <param name="height"> The new height in pixels. </param>
+		void SetHeight(const int &height) { SetWindowSize(GetWidth(), height); }
 
-	/// <summary>
-	/// Gets the window's icon file.
-	/// </summary>
-	/// <returns> The window's icon file. </returns>
-	std::string GetIcon() const { return m_iconPath; }
+		/// <summary>
+		/// Sets window size to a new size.
+		/// </summary>
+		/// <param name="width"> The new width in pixels. </param>
+		/// <param name="height"> The new height in pixels. </param>
+		void SetWindowSize(const int &width, const int &height) = 0;
 
-	/// <summary>
-	/// Sets window icon image.
-	/// </summary>
-	/// <param name="filename"> The new icon file. </param>
-	virtual void SetIcon(const std::string &filename) = 0;
+		/// <summary>
+		/// Gets the non-fullscreen width of the display in pixels.
+		/// </summary>
+		/// <returns> The width of the display. </returns>
+		int GetWindowWidth() const { return m_windowWidth; }
 
-	/// <summary>
-	/// Gets if the display requests antialiased images.
-	/// </summary>
-	/// <returns> If using antialiased images. </returns>
-	bool IsAntialiasing() const { return m_antialiasing; }
+		/// <summary>
+		/// Gets the non-fullscreen height of the display in pixels.
+		/// </summary>
+		/// <returns> The height of the display. </returns>
+		int GetWindowHeight() const { return m_windowHeight; }
 
-	/// <summary>
-	/// Requests the display to antialias.
-	/// </summary>
-	/// <param name="antialiasing"> If the display should antialias. </param>
-	void SetAntialiasing(const bool &antialiasing) { m_antialiasing = antialiasing; }
+		/// <summary>
+		/// Gets the aspect ratio between the displays width and height.
+		/// </summary>
+		/// <returns> The aspect ratio. </returns>
+		float GetAspectRatio() const { return m_aspectRatio; }
 
-	/// <summary>
-	/// Gets weather the display is fullscreen or not.
-	/// </summary>
-	/// <returns> Fullscreen or windowed. </returns>
-	bool IsFullscreen() const { return m_fullscreen; }
+		/// <summary>
+		/// Gets the window's title.
+		/// </summary>
+		/// <returns> The window's title. </returns>
+		std::string GetTitle() const { return m_title; }
 
-	/// <summary>
-	/// Sets the display to be fullscreen or windowed.
-	/// </summary>
-	/// <param name="fullscreen"> Weather or not to be fullscreen. </param>
-	virtual void SetFullscreen(const bool &fullscreen) = 0;
+		/// <summary>
+		/// Sets window title
+		/// </summary>
+		/// <param name="title"> The new title. </param>
+		void SetTitle(const std::string &title) = 0;
 
-	/// <summary>
-	/// Gets if the GLFW display is closed.
-	/// </summary>
-	/// <returns> If the GLFW display is closed. </returns>
-	bool IsClosed() const { return m_closed; }
+		/// <summary>
+		/// Gets the window's icon file.
+		/// </summary>
+		/// <returns> The window's icon file. </returns>
+		std::string GetIcon() const { return m_iconPath; }
 
-	/// <summary>
-	/// Gets if the GLFW display is selected.
-	/// </summary>
-	/// <returns> If the GLFW display is selected. </returns>
-	bool IsFocused() const { return m_focused; }
+		/// <summary>
+		/// Sets window icon image.
+		/// </summary>
+		/// <param name="filename"> The new icon file. </param>
+		void SetIcon(const std::string &filename);
 
-	/// <summary>
-	/// Gets the windows Y position of the display in pixels.
-	/// </summary>
-	/// <returns> The windows x position. </returns>
-	int GetWindowXPos() const { return m_windowPosX; }
+		/// <summary>
+		/// Gets weather the display is fullscreen or not.
+		/// </summary>
+		/// <returns> Fullscreen or windowed. </returns>
+		bool IsFullscreen() const { return m_fullscreen; }
 
-	/// <summary>
-	/// Gets the windows Y position of the display in pixels.
-	/// </summary>
-	/// <returns> The windows Y position. </returns>
-	int GetWindowYPos() const { return m_windowPosY; }
+		/// <summary>
+		/// Sets the display to be fullscreen or windowed.
+		/// </summary>
+		/// <param name="fullscreen"> Weather or not to be fullscreen. </param>
+		void SetFullscreen(const bool &fullscreen);
 
-	/// <summary>
-	/// Gets the windows is minimized.
-	/// </summary>
-	/// <returns> If the window is minimized. </returns>
-	bool IsIconified() const { return m_iconified; }
-};
+		/// <summary>
+		/// Gets if the GLFW display is closed.
+		/// </summary>
+		/// <returns> If the GLFW display is closed. </returns>
+		bool IsClosed() const { return m_closed; }
+
+		/// <summary>
+		/// Gets if the GLFW display is selected.
+		/// </summary>
+		/// <returns> If the GLFW display is selected. </returns>
+		bool IsFocused() const { return m_focused; }
+
+		/// <summary>
+		/// Gets the windows Y position of the display in pixels.
+		/// </summary>
+		/// <returns> The windows x position. </returns>
+		int GetPositionX() const { return m_positionX; }
+
+		/// <summary>
+		/// Gets the windows Y position of the display in pixels.
+		/// </summary>
+		/// <returns> The windows Y position. </returns>
+		int GetPositionY() const { return m_positionY; }
+
+		/// <summary>
+		/// Gets the windows is minimized.
+		/// </summary>
+		/// <returns> If the window is minimized. </returns>
+		bool IsIconified() const { return m_iconified; }
+
+		void SetPositionCallback(PositionCallback callbackPosition) { m_callbackPosition = callbackPosition; }
+		
+		void SetSizeCallback(SizeCallback callbackSize) { m_callbackSize = callbackSize; }
+		
+		void SetFocusCallback(FocusCallback callbackFocus) { m_callbackFocus = callbackFocus; }
+		
+		void SetIconifyCallback(IconifyCallback callbackIconify) { m_callbackIconify = callbackIconify; }
+		
+		void SetCloseCallback(CloseCallback callbackClose) { m_callbackClose = callbackClose; }
+		
+		void SetCursorPositionCallback(CursorPositionCallback callbackCursorPosition) { m_callbackCursorPosition = callbackCursorPosition; }
+		
+		void SetCursorEnterCallback(CursorEnterCallback callbackCursorEnter) { m_callbackCursorEnter = callbackCursorEnter; }
+		
+		void SetCursorScrollCallback(CursorScrollCallback callbackCursorScroll) { m_callbackCursorScroll = callbackCursorScroll; }
+
+		void SetKeyCallback(KeyCallback callbackKey) { m_callbackKey = callbackKey; }
+
+		void SetMouseButtonCallback(MouseButtonCallback callbackMouseButton) { m_callbackMouseButton = callbackMouseButton; }
+
+		void SetTouchCallback(TouchCallback callbackTouch) { m_callbackTouch = callbackTouch; }
+
+		void SetJoystickConnectCallback(JoystickConnectCallback callbackJoystickConnect) { m_callbackJoystickConnect = callbackJoystickConnect; }
+
+		void SetJoystickButtonCallback(JoystickButtonCallback callbackJoystickButton) { m_callbackJoystickButton = callbackJoystickButton; }
+
+		void SetJoystickAxisCallback(JoystickAxisCallback callbackJoystickAxis) { m_callbackJoystickAxis = callbackJoystickAxis; }
+	};
+}

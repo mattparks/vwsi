@@ -3,30 +3,34 @@
 #include <windows.h>
 #include "Shell.hpp"
 
-class ShellWin32 :
-	public Shell
+namespace wsi
 {
-private:
-	HINSTANCE hinstance_;
-	HWND hwnd_;
+	class ShellWin32 :
+		public Shell
+	{
+	private:
+		HINSTANCE hinstance_;
+		HWND hwnd_;
 
-	HMODULE hmodule_;
+		HMODULE hmodule_;
 
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	LRESULT HandleMessage(UINT msg, WPARAM wparam, LPARAM lparam);
-public:
-	ShellWin32();
+		LRESULT HandleMessage(UINT msg, WPARAM wparam, LPARAM lparam);
 
-	~ShellWin32();
+	public:
+		ShellWin32();
 
-	void Update() override;
+		~ShellWin32();
 
-	void SetWindowSize(const int &width, const int &height) override;
+		void Update() override;
 
-	void SetTitle(const std::string &title) override;
+		void SetWindowSize(const int &width, const int &height) override;
 
-	void SetIcon(const std::string &filename) override;
+		void SetTitle(const std::string &title) override;
 
-	void SetFullscreen(const bool &fullscreen) override;
-};
+		void SetIcon(const std::string &filename) override;
+
+		void SetFullscreen(const bool &fullscreen) override;
+	};
+}

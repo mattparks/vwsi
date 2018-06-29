@@ -1,6 +1,17 @@
 cmake_minimum_required (VERSION 3.1)
 project (VulkanWSI)
 
+# Options
+option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
+set(LIB_TYPE STATIC)
+
+if(BUILD_SHARED_LIBS)
+	set(LIB_TYPE SHARED)
+endif()
+
+message(STATUS "Shared Libs: ${BUILD_SHARED_LIBS}")
+
 # Preprocessor
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 	add_definitions(-DVKTESTING_VERBOSE)
