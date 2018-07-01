@@ -1,20 +1,29 @@
-#include "wsi/vulkan_wsi.h"
+#include "VWSI/vulkan_wsi.h"
 
 #include <windows.h>
 #include <stdio.h>
 #include <assert.h>
 
-WsiCallbacks callbacks_;
-HINSTANCE hinstance_;
-HWND hwnd_;
-HMODULE hmodule_;
-PFN_vkGetInstanceProcAddr vkproc_;
+typedef struct WsiMonitor_T
+{
+
+} WsiMonitor_T;
+
+typedef struct WsiShell_T
+{
+	WsiShellCallbacks			callbacks_;
+
+	HINSTANCE 					hinstance_;
+	HWND 						hwnd_;
+	HMODULE 					hmodule_;
+	PFN_vkGetInstanceProcAddr 	vkproc_;
+} WsiShell_T;
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	WsiShell shell = (WsiShell)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-	if (!shell)
+	if (shell == NULL)
 	{
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
@@ -25,9 +34,10 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		UINT w = LOWORD(lParam);
 		UINT h = HIWORD(lParam);
-		if (!callbacks_.size)
+
+		if (shell->callbacks_.pfnSize != NULL)
 		{
-			callbacks_.size(shell, w, h, false);
+			shell->callbacks_.pfnSize(shell, w, h, FALSE);
 		}
 	}
 	break;
@@ -37,9 +47,9 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_CLOSE:
 	{
-		if (!callbacks_.close)
+		if (shell->callbacks_.pfnClose != NULL)
 		{
-			callbacks_.close(shell);
+			shell->callbacks_.pfnClose(shell);
 		}
 	}
 	break;
@@ -50,7 +60,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	default:
 	{
-		return DefWindowProc(hwnd_, uMsg, wParam, lParam);
+		return DefWindowProc(shell->hwnd_, uMsg, wParam, lParam);
 	}
 	break;
 	}
@@ -63,60 +73,73 @@ VkResult wsiEnumerateMonitors(uint32_t *pMonitorCount, WsiMonitor *pMonitors)
 	return VK_SUCCESS;
 }
 
-void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *monitorProperties)
+void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *pMonitorProperties)
 {
 }
 
 VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
 {
-	WsiShell shell = (WsiShell)calloc(1, sizeof(WsiShell));
-
-	callbacks_ = *pCreateInfo->pCallbacks;
-
-	const char filename[] = "vulkan-1.dll";
-	hmodule_ = LoadLibrary(filename);
-	vkproc_ = NULL;
-
-	if (hmodule_)
+	if (pCreateInfo == NULL)
 	{
-		vkproc_ = (PFN_vkGetInstanceProcAddr)GetProcAddress(hmodule_, "vkGetInstanceProcAddr");
+		return VK_INCOMPLETE;
 	}
 
-	if (!hmodule_ || !vkproc_)
+	*pShell = VK_NULL_HANDLE;
+
+	WsiShell_T *shell = calloc(1, sizeof(WsiShell_T));
+	memset(shell, 0, sizeof(shell));
+	shell->callbacks_ = *pCreateInfo->pCallbacks;
+
+	const char filename[] = "vulkan-1.dll";
+	shell->hmodule_ = LoadLibrary(filename);
+	shell->vkproc_ = NULL;
+
+	if (shell->hmodule_)
+	{
+		shell->vkproc_ = (PFN_vkGetInstanceProcAddr)GetProcAddress(shell->hmodule_, "vkGetInstanceProcAddr");
+	}
+
+	if (!shell->hmodule_ || !shell->vkproc_)
 	{
 		assert("Failed to load Vulkan!");
 	}
 
-	hinstance_ = GetModuleHandle(NULL);
+	shell->hinstance_ = GetModuleHandle(NULL);
 
 	WNDCLASSEX win_class = {};
 	win_class.cbSize = sizeof(WNDCLASSEX);
-	win_class.style = CS_HREDRAW | CS_VREDRAW;
+	win_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	win_class.lpfnWndProc = window_proc;
-	win_class.hInstance = hinstance_;
+	win_class.hInstance = shell->hinstance_;
 	win_class.hCursor = LoadCursor(NULL, IDC_ARROW);
 	win_class.lpszClassName = "Shell";
+
+	//if (pCreateInfo->pIcon != NULL)
+	//{
+	//	win_class.hIcon = Load;
+	//}
+
 	RegisterClassEx(&win_class);
 
 	const DWORD win_style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_OVERLAPPEDWINDOW;
 
 	RECT win_rect = {0, 0, pCreateInfo->width, pCreateInfo->height};
-	AdjustWindowRect(&win_rect, win_style, false);
+	AdjustWindowRect(&win_rect, win_style, 0);
 
-	hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, "Shell", pCreateInfo->title, win_style, pCreateInfo->x, pCreateInfo->y,
-		win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, NULL, NULL, hinstance_, NULL);
+	shell->hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, "Shell", pCreateInfo->pName, win_style, pCreateInfo->x, pCreateInfo->y,
+		win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, NULL, NULL, shell->hinstance_, NULL);
 
-	SetForegroundWindow(hwnd_);
-	SetWindowLongPtr(hwnd_, GWLP_USERDATA, (LONG_PTR)shell);
+	SetForegroundWindow(shell->hwnd_);
+	SetWindowLongPtr(shell->hwnd_, GWLP_USERDATA, (LONG_PTR)shell);
 
-	pShell = &shell;
+	*pShell = shell;
 	return VK_SUCCESS;
 }
 
 void wsiDestroyShell(WsiShell shell)
 {
-	CloseWindow(hwnd_);
-	FreeLibrary(hmodule_);
+	CloseWindow(shell->hwnd_);
+	FreeLibrary(shell->hmodule_);
 }
 
 VkResult wsiEnumerateShellExtensions(WsiShell shell, uint32_t *pExtensionCount, const char **pExtensions)
@@ -128,39 +151,26 @@ VkResult wsiEnumerateShellExtensions(WsiShell shell, uint32_t *pExtensionCount, 
 		return VK_SUCCESS;
 	}
 
-	pExtensions[0] = "VK_KHR_surface";
-	pExtensions[1] = "VK_KHR_win32_surface";
+	pExtensions[0] = VK_KHR_SURFACE_EXTENSION_NAME;
+	pExtensions[1] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 	return VK_SUCCESS;
 }
 
-VkResult wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocationCallbacks *allocator, VkSurfaceKHR *surface)
+VkResult wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface)
 {
-	*surface = VK_NULL_HANDLE;
-	VkResult err;
-	VkWin32SurfaceCreateInfoKHR sci;
-	PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
-
-	vkCreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
-
-	if (!vkCreateWin32SurfaceKHR)
+	if (shell == NULL)
 	{
-		assert("Win32: Vulkan instance missing VK_KHR_win32_surface extension");
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
+		return VK_ERROR_MEMORY_MAP_FAILED;
 	}
 
-	memset(&sci, 0, sizeof(sci));
-	sci.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	sci.hinstance = GetModuleHandle(NULL);
-	sci.hwnd = hwnd_;
+	*pSurface = VK_NULL_HANDLE;
 
-	err = vkCreateWin32SurfaceKHR(instance, &sci, allocator, surface);
+	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo;
+	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	surfaceCreateInfo.hinstance = shell->hinstance_;
+	surfaceCreateInfo.hwnd = shell->hwnd_;
 
-	if (err)
-	{
-		assert("Win32: Failed to create Vulkan surface: %s");
-	}
-
-	return err;
+	return vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, pAllocator, pSurface);
 }
 
 VkResult wsiPollEvents(WsiShell shell)
@@ -171,8 +181,12 @@ VkResult wsiPollEvents(WsiShell shell)
 	{
 		if (msg.message == WM_QUIT)
 		{
-			callbacks_.close(shell);
-			break;
+			if (shell->callbacks_.pfnClose != NULL)
+			{
+				shell->callbacks_.pfnClose(shell);
+			}
+
+			return VK_SUCCESS;
 		}
 
 		TranslateMessage(&msg);
@@ -182,36 +196,59 @@ VkResult wsiPollEvents(WsiShell shell)
 	return VK_SUCCESS;
 }
 
+void wsiGetShellCallbacks(WsiShell shell, WsiShellCallbacks **pCallbacks)
+{
+	*pCallbacks = &shell->callbacks_;
+}
+
+VkResult wsiCmdSetResizable(WsiShell shell, VkBool32 resizable)
+{
+	return VK_SUCCESS;
+}
+
 VkResult wsiCmdSetSize(WsiShell shell, uint32_t width, uint32_t height)
 {
-	// TODO: Fix x, y being reset.
+	// TODO: Don't reset window X, Y.
 	RECT win_rect = {0, 0, width, height};
-	MoveWindow(hwnd_, 0, 0, win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, FALSE);
+	MoveWindow(shell->hwnd_, 0, 0, win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, FALSE);
 	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetPosition(WsiShell shell, uint32_t x, uint32_t y)
 {
 	RECT curr_rect;
-	GetClientRect(hwnd_, &curr_rect);
-	MoveWindow(hwnd_, x, y, curr_rect.right - curr_rect.left, curr_rect.bottom - curr_rect.top, FALSE);
+	GetClientRect(shell->hwnd_, &curr_rect);
+	MoveWindow(shell->hwnd_, x, y, curr_rect.right - curr_rect.left, curr_rect.bottom - curr_rect.top, FALSE);
 	return VK_SUCCESS;
 }
 
-VkResult wsiCmdSetTitle(WsiShell shell, const char *title)
+VkResult wsiCmdSetName(WsiShell shell, const char *pName)
 {
-	SetWindowText(hwnd_, title);
+	SetWindowText(shell->hwnd_, pName);
 	return VK_SUCCESS;
 }
 
-VkResult wsiCmdSetIcon(WsiShell shell, const WsiIcon *icon)
+VkResult wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, VkBool32 fullscreen)
 {
-	// TODO: Implement.
 	return VK_SUCCESS;
 }
 
-VkResult wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, bool fullscreen)
+VkResult wsiCmdSetIcon(WsiShell shell, WsiImage icon)
 {
-	// TODO: Implement.
+	return VK_SUCCESS;
+}
+
+VkResult wsiCmdSetCursor(WsiShell shell, WsiImage cursor)
+{
+	return VK_SUCCESS;
+}
+
+VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
+{
+	return VK_SUCCESS;
+}
+
+VkResult wsiCmdSetCursorPos(WsiShell shell, float x, float y)
+{
 	return VK_SUCCESS;
 }

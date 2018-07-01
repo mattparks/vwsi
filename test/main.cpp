@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <wsi/vulkan_wsi.h>
+#include <VWSI/vulkan_wsi.h>
 
 std::string StringifyResultVk(const VkResult &result)
 {
@@ -81,16 +81,16 @@ void CallbackPosition(WsiShell shell, uint32_t x, uint32_t y)
 {
 }
 
-void CallbackSize(WsiShell shell, uint32_t width, uint32_t height, bool fullscreen)
+void CallbackSize(WsiShell shell, uint32_t width, uint32_t height, VkBool32 fullscreen)
 {
 	printf("%ix%i\n", width, height);
 }
 
-void CallbackFocus(WsiShell shell, bool focused)
+void CallbackFocus(WsiShell shell, VkBool32 focused)
 {
 }
 
-void CallbackIconify(WsiShell shell, bool iconified)
+void CallbackIconify(WsiShell shell, VkBool32 iconified)
 {
 }
 
@@ -104,7 +104,7 @@ void CallbackCursorPosition(WsiShell shell, float x, float y)
 {
 }
 
-void CallbackCursorEnter(WsiShell shell, bool entered)
+void CallbackCursorEnter(WsiShell shell, VkBool32 entered)
 {
 }
 
@@ -112,11 +112,11 @@ void CallbackCursorScroll(WsiShell shell, float x, float y)
 {
 }
 
-void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, uint32_t modsCount, WsiModifier *mods)
+void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, uint32_t modCount, WsiModifier *mods)
 {
 }
 
-void CallbackMouseButton(WsiShell shell, WsiMouse mouse, WsiAction action)
+void CallbackMouseButton(WsiShell shell, WsiMouseButton mouseButton, WsiAction action)
 {
 }
 
@@ -124,7 +124,7 @@ void CallbackTouch(WsiShell shell, float x, float y, WsiAction action)
 {
 }
 
-void CallbackJoystickConnect(WsiShell shell, WsiJoystick port, const char *name, bool connected)
+void CallbackJoystickConnect(WsiShell shell, WsiJoystick port, const char *name, uint32_t buttonCount, uint32_t axesCount, VkBool32 connected)
 {
 }
 
@@ -134,6 +134,7 @@ void CallbackJoystickButton(WsiShell shell, WsiJoystick port, uint32_t button, W
 
 void CallbackJoystickAxis(WsiShell shell, WsiJoystick port, uint32_t axis, float amount)
 {
+	printf("Hello World!\n");
 }
 
 int main(int argc, char **argv)
@@ -146,43 +147,51 @@ int main(int argc, char **argv)
 	WsiMonitorProperties monitorProperties;
 	wsiGetMonitorProperties(monitors[0], &monitorProperties);*/
 
-	WsiCallbacks callbacks = {};
-	callbacks.position = CallbackPosition;
-	callbacks.size = CallbackSize;
-	callbacks.focus = CallbackFocus;
-	callbacks.iconify = CallbackIconify;
-	callbacks.close = CallbackClose;
-	callbacks.cursorPosition = CallbackCursorPosition;
-	callbacks.cursorEnter = CallbackCursorEnter;
-	callbacks.cursorScroll = CallbackCursorScroll;
-	callbacks.key = CallbackKey;
-	callbacks.mouse = CallbackMouseButton;
-	callbacks.touch = CallbackTouch;
-	callbacks.joystickConnect = CallbackJoystickConnect;
-	callbacks.joystickButton = CallbackJoystickButton;
-	callbacks.joystickAxis = CallbackJoystickAxis;
+	WsiShellCallbacks shellCallbacks = {};
+	shellCallbacks.pfnPosition = CallbackPosition;
+	shellCallbacks.pfnSize = CallbackSize;
+	shellCallbacks.pfnFocus = CallbackFocus;
+	shellCallbacks.pfnIconify = CallbackIconify;
+	shellCallbacks.pfnClose = CallbackClose;
+	shellCallbacks.pfnCursorPosition = CallbackCursorPosition;
+	shellCallbacks.pfnCursorEnter = CallbackCursorEnter;
+	shellCallbacks.pfnCursorScroll = CallbackCursorScroll;
+	shellCallbacks.pfnKey = CallbackKey;
+	shellCallbacks.pfnMouseButton = CallbackMouseButton;
+	shellCallbacks.pfnTouch = CallbackTouch;
+	//shellCallbacks.pfnJoystickConnect = CallbackJoystickConnect;
+	//shellCallbacks.pfnJoystickButton = CallbackJoystickButton;
+	//shellCallbacks.pfnJoystickAxis = CallbackJoystickAxis;
 
-	WsiIcon icon = {};
+	WsiImage icon = {};
 	icon.width = 32;
 	icon.height = 32;
 	icon.pixels = nullptr;
 
-	WsiShellCreateInfo instanceCreateInfo = {};
-	instanceCreateInfo.pCallbacks = &callbacks;
-	instanceCreateInfo.pIcon = &icon;
-	instanceCreateInfo.width = 1080;
-	instanceCreateInfo.height = 720;
-//	instanceCreateInfo.x = (monitorProperties.width - instanceCreateInfo.width) / 2;
-//	instanceCreateInfo.y = (monitorProperties.height - instanceCreateInfo.height) / 2;
-	instanceCreateInfo.resizable = true;
-	instanceCreateInfo.title = "Hello World";
+	WsiShellCreateInfo shellCreateInfo = {};
+	shellCreateInfo.sType = WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO;
+	shellCreateInfo.pCallbacks = &shellCallbacks;
+	shellCreateInfo.pIcon = &icon;
+	shellCreateInfo.pCursor = nullptr;
+	shellCreateInfo.width = 1080;
+	shellCreateInfo.height = 720;
+//	shellCreateInfo.x = (monitorProperties.width - instanceCreateInfo.width) / 2;
+//	shellCreateInfo.y = (monitorProperties.height - instanceCreateInfo.height) / 2;
+	shellCreateInfo.resizable = true;
+	shellCreateInfo.pName = "Hello World";
 
 	WsiShell shell;
-	ErrorVk(wsiCreateShell(&instanceCreateInfo, &shell));
+	ErrorVk(wsiCreateShell(&shellCreateInfo, &shell));
 
-//	wsiCmdSetSize(shell, 1920, 1080);
-//	wsiCmdSetPosition(shell, 100, 100);
-//	wsiCmdSetTitle(shell, "New Title");
+	WsiShellCallbacks *callbacks;
+	wsiGetShellCallbacks(shell, &callbacks);
+	callbacks->pfnJoystickConnect = CallbackJoystickConnect;
+	callbacks->pfnJoystickButton = CallbackJoystickButton;
+	callbacks->pfnJoystickAxis = CallbackJoystickAxis;
+
+	wsiCmdSetSize(shell, 720, 480);
+//	wsiCmdSetPosition(shell, 300, 200);
+//	wsiCmdSetName(shell, "New Name");
 //	wsiCmdSetIcon(shell, &icon);
 //	wsiCmdSetFullscreen(shell, monitors[0], true);
 
@@ -210,7 +219,7 @@ int main(int argc, char **argv)
 	VkInstance instance;
 	ErrorVk(vkCreateInstance(&createInfo, nullptr, &instance));
 
-	uint32_t physicalDeviceCount;
+	/*uint32_t physicalDeviceCount;
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
 	std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, physicalDevices.data());
@@ -248,22 +257,22 @@ int main(int argc, char **argv)
 	ErrorVk(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &logicalDevice));
 
 	VkQueue queue;
-	vkGetDeviceQueue(logicalDevice, graphicsFamilyIndex, 0, &queue);
+	vkGetDeviceQueue(logicalDevice, graphicsFamilyIndex, 0, &queue);*/
 
 	VkSurfaceKHR surface;
 	ErrorVk(wsiCreateSurface(shell, instance, nullptr, &surface));
 
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-	ErrorVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
+	//VkSurfaceCapabilitiesKHR surfaceCapabilities;
+	//ErrorVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
 
 	while (!m_closed)
 	{
 		wsiPollEvents(shell);
 	}
 
+	wsiDestroyShell(shell);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
-	wsiDestroyShell(shell);
 
 //	std::cin.get();
 	return 0;

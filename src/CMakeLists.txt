@@ -1,36 +1,36 @@
-set(WSI_HEADERS
-        "../include/wsi/vulkan_wsi.h"
+set(VWSI_HEADERS
+        "../include/VWSI/vulkan_wsi.h"
         )
 
-set(WSI_SOURCES
+set(VWSI_SOURCES
         "vulkan_wsi.c"
         )
 
-set(WSI_INCLUDES "${PROJECT_SOURCE_DIR}/include/")
+set(VWSI_INCLUDES "${PROJECT_SOURCE_DIR}/include/")
 
-add_library(vulkanwsi ${LIB_TYPE} ${WSI_HEADERS} ${WSI_SOURCES})
+add_library(VWSI ${LIB_TYPE} ${VWSI_HEADERS} ${VWSI_SOURCES})
 
-set_target_properties(vulkanwsi PROPERTIES
+set_target_properties(VWSI PROPERTIES
         POSITION_INDEPENDENT_CODE ON
-        FOLDER "wsi")
+        FOLDER "VWSI")
 
 if(WIN32 AND BUILD_SHARED_LIBS)
-    set_target_properties(vulkanwsi PROPERTIES PREFIX "")
+    set_target_properties(VWSI PROPERTIES PREFIX "")
 endif()
 
-target_include_directories(vulkanwsi PUBLIC ${LIBRARIES_INCLUDES} ${WSI_INCLUDES})
-target_link_libraries(vulkanwsi PRIVATE ${LIBRARIES_LINKS})
+target_include_directories(VWSI PUBLIC ${LIBRARIES_INCLUDES} ${VWSI_INCLUDES})
+target_link_libraries(VWSI PRIVATE ${LIBRARIES_LINKS})
 
 # Install
-if (WSI_INSTALL)
-    install(TARGETS vulkanwsi
+if (VWSI_INSTALL)
+    install(TARGETS VWSI
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
             )
 
-    foreach (file ${WSI_HEADERS})
+    foreach (file ${VWSI_HEADERS})
         get_filename_component(dir ${file} DIRECTORY)
-        install(FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wsi/${dir})
+        install(FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VWSI/${dir})
     endforeach ()
 endif ()

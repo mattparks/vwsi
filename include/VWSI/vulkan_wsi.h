@@ -24,11 +24,12 @@ extern "C" {
 ** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdbool.h>
 #include <vulkan/vulkan.h>
 
-typedef enum WsiKey
-{
+VK_DEFINE_HANDLE(WsiMonitor)
+VK_DEFINE_HANDLE(WsiShell)
+
+typedef enum WsiKey {
 	WSI_KEY_UNKNOWN = -1,
 	WSI_KEY_SPACE = 32,
 	WSI_KEY_APOSTROPHE = 39,
@@ -153,24 +154,22 @@ typedef enum WsiKey
 	WSI_KEY_LAST = WSI_KEY_MENU
 } WsiKey;
 
-typedef enum WsiMouse
-{
-	WSI_MOUSE_1 = 0,
-	WSI_MOUSE_2 = 1,
-	WSI_MOUSE_3 = 2,
-	WSI_MOUSE_4 = 3,
-	WSI_MOUSE_5 = 4,
-	WSI_MOUSE_6 = 5,
-	WSI_MOUSE_7 = 6,
-	WSI_MOUSE_8 = 7,
-	WSI_MOUSE_LAST = WSI_MOUSE_8,
-	WSI_MOUSE_LEFT = WSI_MOUSE_1,
-	WSI_MOUSE_RIGHT = WSI_MOUSE_2,
-	WSI_MOUSE_MIDDLE = WSI_MOUSE_3
-} WsiMouse;
+typedef enum WsiMouseButton {
+	WSI_MOUSE_BUTTON_1 = 0,
+	WSI_MOUSE_BUTTON_2 = 1,
+	WSI_MOUSE_BUTTON_3 = 2,
+	WSI_MOUSE_BUTTON_4 = 3,
+	WSI_MOUSE_BUTTON_5 = 4,
+	WSI_MOUSE_BUTTON_6 = 5,
+	WSI_MOUSE_BUTTON_7 = 6,
+	WSI_MOUSE_BUTTON_8 = 7,
+	WSI_MOUSE_BUTTON_LAST = WSI_MOUSE_BUTTON_8,
+	WSI_MOUSE_BUTTON_LEFT = WSI_MOUSE_BUTTON_1,
+	WSI_MOUSE_BUTTON_RIGHT = WSI_MOUSE_BUTTON_2,
+	WSI_MOUSE_BUTTON_MIDDLE = WSI_MOUSE_BUTTON_3
+} WsiMouseButton;
 
-typedef enum WsiJoystick
-{
+typedef enum WsiJoystick {
 	WSI_JOYSTICK_1 = 0,
 	WSI_JOYSTICK_2 = 1,
 	WSI_JOYSTICK_3 = 2,
@@ -190,16 +189,14 @@ typedef enum WsiJoystick
 	WSI_JOYSTICK_LAST = WSI_JOYSTICK_16
 } WsiJoystick;
 
-typedef enum WsiAction
-{
+typedef enum WsiAction {
 	WSI_ACTION_PRESS = 0x0001,
 	WSI_ACTION_RELEASE = 0x0002,
 	WSI_ACTION_REPEAT = 0x0003,
 	WSI_ACTION_LAST = WSI_ACTION_REPEAT
 } WsiAction;
 
-typedef enum WsiModifier
-{
+typedef enum WsiModifier {
 	WSI_MODIFIER_SHIFT = 0x0001,
 	WSI_MODIFIER_CONTROL = 0x0002,
 	WSI_MODIFIER_ALT = 0x0004,
@@ -209,70 +206,139 @@ typedef enum WsiModifier
 	WSI_MODIFIER_LAST = WSI_MODIFIER_NUM_LOCK
 } WsiModifier;
 
-typedef struct WsiMonitor_T *WsiMonitor;
-typedef struct WsiShell_T *WsiShell;
+typedef enum WsiCursorMode {
+	WSI_CURSOR_MODE_NORMAL = 0x00034001,
+	WSI_CURSOR_MODE_HIDDEN = 0x00034002,
+	WSI_CURSOR_MODE_DISABLED = 0x00034003,
+	WSI_CURSOR_MODE_LAST = WSI_CURSOR_MODE_DISABLED
+} WsiCursorMode;
 
-typedef void (* PositionCallback)(WsiShell, uint32_t, uint32_t);
-typedef void (* SizeCallback)(WsiShell, uint32_t, uint32_t, bool);
-typedef void (* FocusCallback)(WsiShell, bool);
-typedef void (* IconifyCallback)(WsiShell, bool);
-typedef void (* CloseCallback)(WsiShell);
-typedef void (* CursorPositionCallback)(WsiShell, float, float);
-typedef void (* CursorEnterCallback)(WsiShell, bool);
-typedef void (* CursorScrollCallback)(WsiShell, float, float);
-typedef void (* KeyCallback)(WsiShell, WsiKey, WsiAction, uint32_t, WsiModifier *);
-typedef void (* MouseCallback)(WsiShell, WsiMouse, WsiAction);
-typedef void (* TouchCallback)(WsiShell, float, float, WsiAction);
-typedef void (* JoystickConnectCallback)(WsiShell, WsiJoystick, const char *, bool);
-typedef void (* JoystickButtonCallback)(WsiShell, WsiJoystick, uint32_t, WsiAction);
-typedef void (* JoystickAxisCallback)(WsiShell, WsiJoystick, uint32_t, float);
+typedef enum WsiStructureType {
+	WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO = 0
+} WsiStructureType;
 
-typedef struct WsiMonitorProperties
-{
-	uint32_t width;
-	uint32_t height;
+typedef struct WsiImage {
+	uint32_t 			width;
+	uint32_t 			height;
+	unsigned char*		pixels;
+} WsiImage;
+
+typedef struct WsiMonitorProperties {
+	uint32_t 	width;
+	uint32_t	height;
 } WsiMonitorProperties;
 
-typedef struct WsiCallbacks
-{
-	PositionCallback position;
-	SizeCallback size;
-	FocusCallback focus;
-	IconifyCallback iconify;
-	CloseCallback close;
-	CursorPositionCallback cursorPosition;
-	CursorEnterCallback cursorEnter;
-	CursorScrollCallback cursorScroll;
-	KeyCallback key;
-	MouseCallback mouse;
-	TouchCallback touch;
-	JoystickConnectCallback joystickConnect;
-	JoystickButtonCallback joystickButton;
-	JoystickAxisCallback joystickAxis;
-} WsiCallbacks;
+typedef void (VKAPI_PTR *PFN_vkPositionCallback)(
+	WsiShell 							shell,
+	uint32_t 							x,
+	uint32_t 							y);
 
-typedef struct WsiIcon
-{
-	uint32_t width;
-	uint32_t height;
-	unsigned char* pixels;
-} WsiIcon;
+typedef void (VKAPI_PTR *PFN_vkSizeCallback)(
+	WsiShell 							shell,
+	uint32_t 							width,
+	uint32_t 							height,
+	VkBool32 							fullscreen);
 
-typedef struct WsiShellCreateInfo
-{
-	const WsiCallbacks *pCallbacks;
-	const WsiIcon *pIcon;
-	uint32_t width;
-	uint32_t height;
-	uint32_t x;
-	uint32_t y;
-	bool resizable;
-	const char *title;
+typedef void (VKAPI_PTR *PFN_vkFocusCallback)(
+	WsiShell 							shell,
+	VkBool32 							focused);
+
+typedef void (VKAPI_PTR *PFN_vkIconifyCallback)(
+	WsiShell 							shell,
+	VkBool32 							iconified);
+
+typedef void (VKAPI_PTR *PFN_vkCloseCallback)(
+	WsiShell 							shell);
+
+typedef void (VKAPI_PTR *PFN_vkCursorPositionCallback)(
+	WsiShell 							shell,
+	float 								x,
+	float 								y);
+
+typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
+	WsiShell 							shell,
+	VkBool32 							entered);
+
+typedef void (VKAPI_PTR *PFN_vkCursorScrollCallback)(
+	WsiShell 							shell,
+	float 								x,
+	float 								y);
+
+typedef void (VKAPI_PTR *PFN_vkKeyCallback)(
+	WsiShell 							shell,
+	WsiKey 								key,
+	WsiAction 							action,
+	uint32_t 							modCount,
+	WsiModifier*						mods);
+
+typedef void (VKAPI_PTR *PFN_vkMouseButtonCallback)(
+	WsiShell 							shell,
+	WsiMouseButton 						mouseButton,
+	WsiAction 							action);
+
+typedef void (VKAPI_PTR *PFN_vkTouchCallback)(
+	WsiShell 							shell,
+	float								x,
+	float								y,
+	WsiAction 							action);
+
+typedef void (VKAPI_PTR *PFN_vkJoystickConnectCallback)(
+	WsiShell 							shell,
+	WsiJoystick 						port,
+	const char*							name,
+	uint32_t 							buttonCount,
+	uint32_t 							axesCount,
+	VkBool32 							connected);
+
+typedef void (VKAPI_PTR *PFN_vkJoystickButtonCallback)(
+	WsiShell 							shell,
+	WsiJoystick 						port,
+	uint32_t 							button,
+	WsiAction 							action);
+
+typedef void (VKAPI_PTR *PFN_vkJoystickAxisCallback)(
+	WsiShell 							shell,
+	WsiJoystick 						port,
+	uint32_t 							axis,
+	float 								amount);
+
+typedef struct WsiShellCallbacks {
+	PFN_vkPositionCallback 			pfnPosition;
+	PFN_vkSizeCallback 				pfnSize;
+	PFN_vkFocusCallback 			pfnFocus;
+	PFN_vkIconifyCallback 			pfnIconify;
+	PFN_vkCloseCallback 			pfnClose;
+
+	PFN_vkCursorPositionCallback 	pfnCursorPosition;
+	PFN_vkCursorEnterCallback 		pfnCursorEnter;
+	PFN_vkCursorScrollCallback		pfnCursorScroll;
+	PFN_vkMouseButtonCallback 		pfnMouseButton;
+
+	PFN_vkKeyCallback 				pfnKey;
+
+	PFN_vkTouchCallback 			pfnTouch;
+
+	PFN_vkJoystickConnectCallback 	pfnJoystickConnect;
+	PFN_vkJoystickButtonCallback 	pfnJoystickButton;
+	PFN_vkJoystickAxisCallback 		pfnJoystickAxis;
+} WsiShellCallbacks;
+
+typedef struct WsiShellCreateInfo {
+	WsiStructureType    		sType;
+	const WsiShellCallbacks*	pCallbacks;
+	const WsiImage*				pIcon;
+	const WsiImage*				pCursor;
+	uint32_t 					width;
+	uint32_t 					height;
+	uint32_t 					x;
+	uint32_t 					y;
+	VkBool32 					resizable;
+	const char*					pName;
 } WsiShellCreateInfo;
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiEnumerateMonitors(uint32_t *pMonitorCount, WsiMonitor *pMonitors);
 
-VKAPI_ATTR void VKAPI_CALL wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *monitorProperties);
+VKAPI_ATTR void VKAPI_CALL wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *pMonitorProperties);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell);
 
@@ -280,40 +346,32 @@ VKAPI_ATTR void VKAPI_CALL wsiDestroyShell(WsiShell shell);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiEnumerateShellExtensions(WsiShell shell, uint32_t *pExtensionCount, const char **pExtensions);
 
-VKAPI_ATTR VkResult VKAPI_CALL wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocationCallbacks *allocator, VkSurfaceKHR *surface);
+VKAPI_ATTR VkResult VKAPI_CALL wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiPollEvents(WsiShell shell);
+
+VKAPI_ATTR void VKAPI_CALL wsiGetShellCallbacks(WsiShell shell, WsiShellCallbacks **pCallbacks);
+
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetResizable(WsiShell shell, VkBool32 resizable);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetSize(WsiShell shell, uint32_t width, uint32_t height);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetPosition(WsiShell shell, uint32_t x, uint32_t y);
 
-VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetTitle(WsiShell shell, const char *title);
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, VkBool32 fullscreen);
 
-VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetIcon(WsiShell shell, const WsiIcon *icon);
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetName(WsiShell shell, const char *pName);
 
-VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, bool fullscreen);
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetIcon(WsiShell shell, WsiImage icon);
 
-struct WsiShell_T
-{
-	WsiCallbacks callbacks_;
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursor(WsiShell shell, WsiImage cursor);
 
-//	char keys[WSI_KEY_LAST];
-//	char mouseButtons[WSI_MOUSE_LAST];
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode);
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
-#elif VK_USE_PLATFORM_WAYLAND_KHR
-#elif VK_USE_PLATFORM_WIN32_KHR
-//	HINSTANCE hinstance_;
-//	HWND hwnd_;
-//	HMODULE hmodule_;
-//	PFN_vkGetInstanceProcAddr vkproc_;
-#elif VK_USE_PLATFORM_ANDROID_KHR
-#endif
-};
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursorPos(WsiShell shell, float x, float y);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //VULKAN_WSI_H
+#endif // VULKAN_WSI_H
