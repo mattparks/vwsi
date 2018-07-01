@@ -1,9 +1,21 @@
-#ifdef VK_USE_PLATFORM_XCB_KHR
-#include "wsi_xcb.c"
-#elif VK_USE_PLATFORM_WAYLAND_KHR
-#include "wsi_wayland.c"
+#if VK_USE_PLATFORM_ANDROID_KHR
+#include "wsi_android.c"
+#elif VK_USE_PLATFORM_IOS_MVK
+#include "wsi_ios.c"
+#elif VK_USE_PLATFORM_MACOS_MVK
+#include "wsi_macos.c"
+//#elif VK_USE_PLATFORM_MIR_KHR
+//#include "wsi_mir.c"
+//#elif VK_USE_PLATFORM_VI_NN
+//#include "wsi_vi.c"
+//#elif VK_USE_PLATFORM_WAYLAND_KHR
+//#include "wsi_wayland.c"
 #elif VK_USE_PLATFORM_WIN32_KHR
 #include "wsi_win32.c"
-#elif VK_USE_PLATFORM_ANDROID_KHR
-#include "wsi_android.c"
+#elif VK_USE_PLATFORM_XCB_KHR
+#include "wsi_xcb.c"
+//#elif VK_USE_PLATFORM_XLIB_KHR
+//#include "wsi_xlib.c"
+//#elif VK_USE_PLATFORM_XLIB_XRANDR_EXT
+//#include "wsi_xlib_xrandr.c"
 #endif

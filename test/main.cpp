@@ -3,6 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <VWSI/vulkan_wsi.h>
+//#include <VWSI/vulkan_wsi.hpp>
 
 std::string StringifyResultVk(const VkResult &result)
 {
@@ -139,13 +140,13 @@ void CallbackJoystickAxis(WsiShell shell, WsiJoystick port, uint32_t axis, float
 
 int main(int argc, char **argv)
 {
-	/*uint32_t instanceMonitorCount;
+	uint32_t instanceMonitorCount;
 	wsiEnumerateMonitors(&instanceMonitorCount, nullptr);
 	std::vector<WsiMonitor> monitors(instanceMonitorCount);
 	wsiEnumerateMonitors(&instanceMonitorCount, monitors.data());
 
 	WsiMonitorProperties monitorProperties;
-	wsiGetMonitorProperties(monitors[0], &monitorProperties);*/
+	wsiGetMonitorProperties(monitors[0], &monitorProperties);
 
 	WsiShellCallbacks shellCallbacks = {};
 	shellCallbacks.pfnPosition = CallbackPosition;
@@ -175,8 +176,8 @@ int main(int argc, char **argv)
 	shellCreateInfo.pCursor = nullptr;
 	shellCreateInfo.width = 1080;
 	shellCreateInfo.height = 720;
-//	shellCreateInfo.x = (monitorProperties.width - instanceCreateInfo.width) / 2;
-//	shellCreateInfo.y = (monitorProperties.height - instanceCreateInfo.height) / 2;
+	shellCreateInfo.x = (monitorProperties.width - shellCreateInfo.width) / 2;
+	shellCreateInfo.y = (monitorProperties.height - shellCreateInfo.height) / 2;
 	shellCreateInfo.resizable = true;
 	shellCreateInfo.pName = "Hello World";
 
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
 	callbacks->pfnJoystickButton = CallbackJoystickButton;
 	callbacks->pfnJoystickAxis = CallbackJoystickAxis;
 
-	wsiCmdSetSize(shell, 720, 480);
+//	wsiCmdSetSize(shell, 720, 480);
 //	wsiCmdSetPosition(shell, 300, 200);
 //	wsiCmdSetName(shell, "New Name");
 //	wsiCmdSetIcon(shell, &icon);
@@ -267,7 +268,7 @@ int main(int argc, char **argv)
 
 	while (!m_closed)
 	{
-		wsiPollEvents(shell);
+		wsiCmdPollEvents(shell);
 	}
 
 	wsiDestroyShell(shell);

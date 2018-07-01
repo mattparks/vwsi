@@ -1,4 +1,5 @@
 set(TEST_HEADERS
+        "../include/VWSI/vulkan_wsi.hpp"
         )
 
 set(TEST_SOURCES

@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+    <comment>
+Copyright 2018 Matthew Albrecht
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    </comment>
+
+    <vendorids comment="Vulkan WSI vendor IDs for physical devices without PCI vendor IDs">
+    </vendorids>
+	
+    <platforms comment="Vulkan WSI platform names, reserved for use with platform- and window system-specific extensions">
+        <platform name="xlib" protect="VK_USE_PLATFORM_XLIB_KHR" comment="X Window System, Xlib client library"/>
+        <platform name="xlib_xrandr" protect="VK_USE_PLATFORM_XLIB_XRANDR_EXT" comment="X Window System, Xlib client library, XRandR extension"/>
+        <platform name="xcb" protect="VK_USE_PLATFORM_XCB_KHR" comment="X Window System, Xcb client library"/>
+        <platform name="wayland" protect="VK_USE_PLATFORM_WAYLAND_KHR" comment="Wayland display server protocol"/>
+        <platform name="mir" protect="VK_USE_PLATFORM_MIR_KHR" comment="Mir display server"/>
+        <platform name="android" protect="VK_USE_PLATFORM_ANDROID_KHR" comment="Android OS"/>
+        <platform name="win32" protect="VK_USE_PLATFORM_WIN32_KHR" comment="Microsoft Win32 API (also refers to Win64 apps)"/>
+        <platform name="vi" protect="VK_USE_PLATFORM_VI_NN" comment="Nintendo Vi"/>
+        <platform name="ios" protect="VK_USE_PLATFORM_IOS_MVK" comment="Apple IOS"/>
+        <platform name="macos" protect="VK_USE_PLATFORM_MACOS_MVK" comment="Apple MacOS"/>
+    </platforms>
+	
+    <tags comment="Vulkan WSI vendor/author tags for extensions and layers">
+	</tags>
+	
+    <types comment="Vulkan WSI type definitions">
+        <type category="include" name="vulkan/vulkan.h"/>
+		
+            <comment>Types which can be void pointers or class pointers, selected at compile time</comment>
+        <type category="handle"><type>VK_DEFINE_HANDLE</type>(<name>WsiMonitor</name>)</type>
+        <type category="handle"><type>VK_DEFINE_HANDLE</type>(<name>WsiShell</name>)</type>
+		
+            <comment>Types generated from corresponding enums tags below</comment>
+        <type name="WsiKey" category="enum"/>
+        <type name="WsiMouseButton" category="enum"/>
+        <type name="WsiJoystick" category="enum"/>
+        <type name="WsiAction" category="enum"/>
+        <type name="WsiModifier" category="enum"/>
+        <type name="WsiCursorMode" category="enum"/>
+        <type name="WsiStructureType" category="enum"/>
+		
+            <comment>The PFN_vk*Callback types are used by WsiShellCallbacks below</comment>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkPositionCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>uint32_t</type>   									 x,
+    <type>uint32_t</type>   									 y</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkSizeCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>uint32_t</type>   									 width,
+    <type>uint32_t</type>   									 height,
+    <type>VkBool32</type>   									 fullscreen</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkFocusCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>VkBool32</type>   									 focused</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkIconifyCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>VkBool32</type>   									 iconified</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCloseCallback</name>)(
+    <type>WsiShell</type>                                        shell</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>float</type>   									 	 x,
+    <type>float</type>   									 	 y</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>VkBool32</type>   									 entered</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorScrollCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>float</type>   									 	 x,
+    <type>float</type>   									 	 y</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkKeyCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>WsiKey</type>   									 	 key,
+    <type>WsiAction</type>   									 action,
+    <type>uint32_t</type>   									 modCount,
+    <type>WsiModifier</type>*   								 pMods</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkMouseButtonCallback</name>)(
+    <type>WsiShell</type>*                                       shell,
+    <type>WsiMouseButton</type>   								 mouseButton,
+    <type>WsiAction</type>   									 action</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkTouchCallback</name>)(
+    <type>WsiShell</type>*                                       shell,
+    <type>float</type>   										 x,
+    <type>float</type>   										 y,
+    <type>WsiAction</type>   									 action</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickConnectCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>WsiJoystick</type>   									 port,
+    const <type>char</type>*   									 pName,
+    <type>uint32_t</type>   									 buttonCount,
+    <type>uint32_t</type>   									 axesCount,
+    <type>VkBool32</type>   									 connected</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickButtonCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>WsiJoystick</type>   									 port,
+    <type>uint32_t</type>	 									 button,
+    <type>WsiAction</type>   									 action</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickAxisCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    <type>WsiJoystick</type>   									 port,
+    <type>uint32_t</type>	 									 axis,
+    <type>float</type>   									 	 amount</type>
+	
+            <comment>Struct types</comment>
+        <type category="struct" name="WsiImage">
+            <member><type>uint32_t</type>        <name>width</name></member>
+            <member><type>uint32_t</type>        <name>height</name></member>
+            <member><type>unsigned char*</type>  <name>pixels</name></member>
+        </type>
+        <type category="struct" name="WsiMonitorProperties">
+            <member><type>uint32_t</type>        <name>width</name></member>
+            <member><type>uint32_t</type>        <name>height</name></member>
+        </type>
+        <type category="struct" name="WsiShellCallbacks">
+            <member><type>PFN_vkPositionCallback</type>   <name>pfnPosition</name></member>
+            <member><type>PFN_vkSizeCallback</type>   <name>pfnSize</name></member>
+            <member><type>PFN_vkFocusCallback</type>   <name>pfnFocus</name></member>
+            <member><type>PFN_vkIconifyCallback</type>   <name>pfnIconify</name></member>
+            <member><type>PFN_vkCloseCallback </type>   <name>pfnClose</name></member>
+            <member><type>PFN_vkCursorPositionCallback</type>   <name>pfnCursorPosition</name></member>
+            <member><type>PFN_vkCursorEnterCallback</type>   <name>pfnCursorEnter</name></member>
+            <member><type>PFN_vkCursorScrollCallback</type>   <name>pfnCursorScroll</name></member>
+            <member><type>PFN_vkMouseButtonCallback</type>   <name>pfnMouseButton</name></member>
+            <member><type>PFN_vkKeyCallback</type>   <name>pfnKey</name></member>
+            <member><type>PFN_vkTouchCallback</type>   <name>pfnTouch</name></member>
+            <member><type>PFN_vkJoystickConnectCallback</type>   <name>pfnJoystickConnect</name></member>
+            <member><type>PFN_vkJoystickButtonCallback</type>   <name>pfnJoystickButton</name></member>
+            <member><type>PFN_vkJoystickAxisCallback </type>   <name>pfnJoystickAxis</name></member>
+        </type>
+        <type category="struct" name="WsiShellCreateInfo">
+            <member values="WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO"><type>WsiStructureType</type> <name>sType</name></member>
+            <member>const <type>void</type>*     <name>pNext</name></member>
+			<member>const <type>WsiShellCallbacks</type>*     <name>pCallbacks</name></member>
+			<member>const <type>WsiImage</type>*     <name>pIcon</name></member>
+			<member>const <type>WsiImage</type>*     <name>pCursor</name></member>
+			<member><type>uint32_t</type>     <name>width</name></member>
+			<member><type>uint32_t</type>     <name>height</name></member>
+			<member><type>uint32_t</type>     <name>x</name></member>
+			<member><type>uint32_t</type>     <name>y</name></member>
+			<member><type>VkBool32</type>     <name>resizable</name></member>
+			<member>const <type>char</type>*     <name>pName</name></member>
+        </type>
+	</types>
+	
+    <comment>Vulkan WSI enumerant (token) definitions</comment>
+
+    <enums name="WsiKey" type="enum" comment="Keyboard key enumerant">
+        <enum value="-1"     name="WSI_KEY_UNKNOWN"/>
+        <enum value="32"     name="WSI_KEY_SPACE"/>
+        <enum value="39"     name="WSI_KEY_APOSTROPHE"/>
+        <enum value="44"     name="WSI_KEY_COMMA"/>
+        <enum value="45"     name="WSI_KEY_MINUS"/>
+        <enum value="46"     name="WSI_KEY_PERIOD"/>
+        <enum value="47"     name="WSI_KEY_SLASH"/>
+        <enum value="48"     name="WSI_KEY_0"/>
+        <enum value="49"     name="WSI_KEY_1"/>
+        <enum value="50"     name="WSI_KEY_2"/>
+        <enum value="51"     name="WSI_KEY_3"/>
+        <enum value="52"     name="WSI_KEY_4"/>
+        <enum value="53"     name="WSI_KEY_5"/>
+        <enum value="54"     name="WSI_KEY_6"/>
+        <enum value="55"     name="WSI_KEY_7"/>
+        <enum value="56"     name="WSI_KEY_8"/>
+        <enum value="57"     name="WSI_KEY_9"/>
+        <enum value="59"     name="WSI_KEY_SEMICOLON"/>
+        <enum value="61"     name="WSI_KEY_EQUAL"/>
+        <enum value="65"     name="WSI_KEY_A"/>
+        <enum value="66"     name="WSI_KEY_B"/>
+        <enum value="67"     name="WSI_KEY_C"/>
+        <enum value="68"     name="WSI_KEY_D"/>
+        <enum value="69"     name="WSI_KEY_E"/>
+        <enum value="70"     name="WSI_KEY_F"/>
+        <enum value="71"     name="WSI_KEY_G"/>
+        <enum value="72"     name="WSI_KEY_H"/>
+        <enum value="73"     name="WSI_KEY_I"/>
+        <enum value="74"     name="WSI_KEY_J"/>
+        <enum value="75"     name="WSI_KEY_K"/>
+        <enum value="76"     name="WSI_KEY_L"/>
+        <enum value="77"     name="WSI_KEY_M"/>
+        <enum value="78"     name="WSI_KEY_N"/>
+        <enum value="79"     name="WSI_KEY_O"/>
+        <enum value="80"     name="WSI_KEY_P"/>
+        <enum value="81"     name="WSI_KEY_Q"/>
+        <enum value="82"     name="WSI_KEY_R"/>
+        <enum value="83"     name="WSI_KEY_S"/>
+        <enum value="84"     name="WSI_KEY_T"/>
+        <enum value="85"     name="WSI_KEY_U"/>
+        <enum value="86"     name="WSI_KEY_V"/>
+        <enum value="87"     name="WSI_KEY_W"/>
+        <enum value="88"     name="WSI_KEY_X"/>
+        <enum value="89"     name="WSI_KEY_Y"/>
+        <enum value="90"     name="WSI_KEY_Z"/>
+        <enum value="91"     name="WSI_KEY_LEFT_BRACKET"/>
+        <enum value="92"     name="WSI_KEY_BACKSLASH"/>
+        <enum value="93"     name="WSI_KEY_RIGHT_BRACKET"/>
+        <enum value="96"     name="WSI_KEY_GRAVE_ACCENT"/>
+        <enum value="161"     name="WSI_KEY_WORLD_1"/>
+        <enum value="162"     name="WSI_KEY_WORLD_2"/>
+        <enum value="256"     name="WSI_KEY_ESCAPE"/>
+        <enum value="257"     name="WSI_KEY_ENTER"/>
+        <enum value="258"     name="WSI_KEY_TAB"/>
+        <enum value="259"     name="WSI_KEY_BACKSPACE"/>
+        <enum value="260"     name="WSI_KEY_INSERT"/>
+        <enum value="261"     name="WSI_KEY_DELETE"/>
+        <enum value="262"     name="WSI_KEY_RIGHT"/>
+        <enum value="263"     name="WSI_KEY_LEFT"/>
+        <enum value="264"     name="WSI_KEY_DOWN"/>
+        <enum value="265"     name="WSI_KEY_UP"/>
+        <enum value="266"     name="WSI_KEY_PAGE_UP"/>
+        <enum value="267"     name="WSI_KEY_PAGE_DOWN"/>
+        <enum value="268"     name="WSI_KEY_HOME"/>
+        <enum value="269"     name="WSI_KEY_END"/>
+        <enum value="280"     name="WSI_KEY_CAPS_LOCK"/>
+        <enum value="281"     name="WSI_KEY_SCROLL_LOCK"/>
+        <enum value="282"     name="WSI_KEY_NUM_LOCK"/>
+        <enum value="283"     name="WSI_KEY_PRINT_SCREEN"/>
+        <enum value="284"     name="WSI_KEY_PAUSE"/>
+        <enum value="290"     name="WSI_KEY_F1"/>
+        <enum value="291"     name="WSI_KEY_F2"/>
+        <enum value="292"     name="WSI_KEY_F3"/>
+        <enum value="293"     name="WSI_KEY_F4"/>
+        <enum value="294"     name="WSI_KEY_F5"/>
+        <enum value="295"     name="WSI_KEY_F6"/>
+        <enum value="296"     name="WSI_KEY_F7"/>
+        <enum value="297"     name="WSI_KEY_F8"/>
+        <enum value="298"     name="WSI_KEY_F9"/>
+        <enum value="299"     name="WSI_KEY_F10"/>
+        <enum value="300"     name="WSI_KEY_F11"/>
+        <enum value="301"     name="WSI_KEY_F12"/>
+        <enum value="302"     name="WSI_KEY_F13"/>
+        <enum value="303"     name="WSI_KEY_F14"/>
+        <enum value="304"     name="WSI_KEY_F15"/>
+        <enum value="305"     name="WSI_KEY_F16"/>
+        <enum value="306"     name="WSI_KEY_F17"/>
+        <enum value="307"     name="WSI_KEY_F18"/>
+        <enum value="308"     name="WSI_KEY_F19"/>
+        <enum value="309"     name="WSI_KEY_F20"/>
+        <enum value="310"     name="WSI_KEY_F21"/>
+        <enum value="311"     name="WSI_KEY_F22"/>
+        <enum value="312"     name="WSI_KEY_F23"/>
+        <enum value="313"     name="WSI_KEY_F24"/>
+        <enum value="314"     name="WSI_KEY_F25"/>
+        <enum value="320"     name="WSI_KEY_PAD_0"/>
+        <enum value="321"     name="WSI_KEY_PAD_1"/>
+        <enum value="322"     name="WSI_KEY_PAD_2"/>
+        <enum value="323"     name="WSI_KEY_PAD_3"/>
+        <enum value="324"     name="WSI_KEY_PAD_4"/>
+        <enum value="325"     name="WSI_KEY_PAD_5"/>
+        <enum value="326"     name="WSI_KEY_PAD_6"/>
+        <enum value="327"     name="WSI_KEY_PAD_7"/>
+        <enum value="328"     name="WSI_KEY_PAD_8"/>
+        <enum value="329"     name="WSI_KEY_PAD_9"/>
+        <enum value="330"     name="WSI_KEY_PAD_DECIMAL"/>
+        <enum value="331"     name="WSI_KEY_PAD_DIVIDE"/>
+        <enum value="332"     name="WSI_KEY_PAD_MULTIPLY"/>
+        <enum value="333"     name="WSI_KEY_PAD_SUBTRACT"/>
+        <enum value="334"     name="WSI_KEY_PAD_ADD"/>
+        <enum value="335"     name="WSI_KEY_PAD_ENTER"/>
+        <enum value="336"     name="WSI_KEY_PAD_EQUAL"/>
+        <enum value="340"     name="WSI_KEY_LEFT_SHIFT"/>
+        <enum value="341"     name="WSI_KEY_LEFT_CONTROL"/>
+        <enum value="342"     name="WSI_KEY_LEFT_ALT"/>
+        <enum value="343"     name="WSI_KEY_LEFT_SUPER"/>
+        <enum value="344"     name="WSI_KEY_RIGHT_SHIFT"/>
+        <enum value="345"     name="WSI_KEY_RIGHT_CONTROL"/>
+        <enum value="346"     name="WSI_KEY_RIGHT_ALT"/>
+        <enum value="347"     name="WSI_KEY_RIGHT_SUPER"/>
+        <enum value="348"     name="WSI_KEY_MENU"/>
+	</enums>
+    <enums name="WsiMouseButton" type="enum" comment="Mouse input button enumerant">
+        <enum value="0"     name="WSI_MOUSE_BUTTON_1"/>
+        <enum value="1"     name="WSI_MOUSE_BUTTON_2"/>
+        <enum value="2"     name="WSI_MOUSE_BUTTON_3"/>
+        <enum value="3"     name="WSI_MOUSE_BUTTON_4"/>
+        <enum value="4"     name="WSI_MOUSE_BUTTON_5"/>
+        <enum value="5"     name="WSI_MOUSE_BUTTON_6"/>
+        <enum value="6"     name="WSI_MOUSE_BUTTON_7"/>
+        <enum value="7"     name="WSI_MOUSE_BUTTON_8"/>
+        <enum value="0"     name="WSI_MOUSE_BUTTON_LEFT"/>
+        <enum value="1"     name="WSI_MOUSE_BUTTON_RIGHT"/>
+        <enum value="2"     name="WSI_MOUSE_BUTTON_MIDDLE"/>
+	</enums>
+    <enums name="WsiJoystick" type="enum" comment="Joystick port enumerant">
+        <enum value="0"     name="WSI_JOYSTICK_1"/>
+        <enum value="1"     name="WSI_JOYSTICK_2"/>
+        <enum value="2"     name="WSI_JOYSTICK_3"/>
+        <enum value="3"     name="WSI_JOYSTICK_4"/>
+        <enum value="4"     name="WSI_JOYSTICK_5"/>
+        <enum value="5"     name="WSI_JOYSTICK_6"/>
+        <enum value="6"     name="WSI_JOYSTICK_7"/>
+        <enum value="7"     name="WSI_JOYSTICK_8"/>
+        <enum value="8"     name="WSI_JOYSTICK_9"/>
+        <enum value="9"     name="WSI_JOYSTICK_10"/>
+        <enum value="10"     name="WSI_JOYSTICK_11"/>
+        <enum value="11"     name="WSI_JOYSTICK_12"/>
+        <enum value="12"     name="WSI_JOYSTICK_13"/>
+        <enum value="13"     name="WSI_JOYSTICK_14"/>
+        <enum value="14"     name="WSI_JOYSTICK_15"/>
+        <enum value="15"     name="WSI_JOYSTICK_16"/>
+	</enums>
+    <enums name="WsiAction" type="enum" comment="Input action enumerant">
+        <enum value="0"     name="WSI_ACTION_PRESS"/>
+        <enum value="1"     name="WSI_ACTION_RELEASE"/>
+        <enum value="2"     name="WSI_ACTION_REPEAT"/>
+	</enums>
+    <enums name="WsiModifier" type="enum" comment="Action modifier enumerant">
+        <enum value="0"     name="WSI_MODIFIER_SHIFT"/>
+        <enum value="1"     name="WSI_MODIFIER_CONTROL"/>
+        <enum value="2"     name="WSI_MODIFIER_ALT"/>
+        <enum value="3"     name="WSI_MODIFIER_SUPER"/>
+        <enum value="4"     name="WSI_MODIFIER_CAPS_LOCK"/>
+        <enum value="5"     name="WSI_MODIFIER_NUM_LOCK"/>
+	</enums>
+    <enums name="WsiCursorMode" type="enum" comment="Cursor display enumerant">
+        <enum value="0"     name="WSI_CURSOR_MODE_NORMAL"/>
+        <enum value="1"     name="WSI_CURSOR_MODE_HIDDEN"/>
+        <enum value="2"     name="WSI_CURSOR_MODE_DISABLED"/>
+	</enums>
+    <enums name="WsiStructureType" type="enum" comment="Structure type enumerant">
+        <enum value="0"     name="WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO"/>
+	</enums>
+	
+    <commands comment="Vulkan command definitions">
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiEnumerateMonitors</name></proto>
+            <param optional="false,true"><type>uint32_t</type>* <name>pMonitorCount</name></param>
+            <param optional="true" len="pMonitorCount"><type>WsiMonitor</type>* <name>pMonitors</name></param>
+        </command>
+        <command>
+            <proto><type>void</type> <name>wsiGetMonitorProperties</name></proto>
+            <param><type>WsiMonitor</type> <name>monitor</name></param>
+            <param><type>WsiMonitorProperties</type>* <name>pProperties</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED,VK_ERROR_LAYER_NOT_PRESENT,VK_ERROR_EXTENSION_NOT_PRESENT,VK_ERROR_INCOMPATIBLE_DRIVER">
+            <proto><type>VkResult</type> <name>wsiCreateShell</name></proto>
+            <param>const <type>WsiShellCreateInfo</type>* <name>pCreateInfo</name></param>
+            <param optional="true">const <type>VkAllocationCallbacks</type>* <name>pAllocator</name></param>
+            <param><type>WsiShell</type>* <name>pShell</name></param>
+        </command>
+        <command>
+            <proto><type>void</type> <name>wsiDestroyShell</name></proto>
+            <param optional="true" externsync="true"><type>WsiShell</type> <name>shell</name></param>
+            <param optional="true">const <type>VkAllocationCallbacks</type>* <name>pAllocator</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiEnumerateShellExtensions</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param optional="false,true"><type>uint32_t</type>* <name>pExtensionCount</name></param>
+            <param optional="true" len="pExtensionCount">const <type>char</type>** <name>pExtensions</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_NATIVE_WINDOW_IN_USE_KHR">
+            <proto><type>VkResult</type> <name>wsiCreateSurface</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>VkInstance</type> <name>instance</name></param>
+            <param optional="true">const <type>VkAllocationCallbacks</type>* <name>pAllocator</name></param>
+            <param><type>VkSurfaceKHR</type>* <name>pSurface</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdPollEvents</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+        </command>
+        <command>
+            <proto><type>void</type> <name>wsiGetShellCallbacks</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param optional="true"><type>WsiShellCallbacks</type>** <name>ppCallbacks</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetResizable</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>VkBool32</type> <name>resizable</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetSize</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>uint32_t</type> <name>width</name></param>
+            <param><type>uint32_t</type> <name>height</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetPosition</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>uint32_t</type> <name>x</name></param>
+            <param><type>uint32_t</type> <name>y</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetFullscreen</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>WsiMonitor</type> <name>monitor</name></param>
+            <param><type>VkBool32</type> <name>fullscreen</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetName</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param>const <type>char</type>* <name>pName</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetIcon</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>WsiImage</type> <name>icon</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetCursor</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>WsiImage</type> <name>cursor</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetCursorMode</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>WsiCursorMode</type> <name>mode</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetCursorPos</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>uint32_t</type> <name>x</name></param>
+            <param><type>uint32_t</type> <name>y</name></param>
+        </command>
+	</commands>
+	
+    <feature api="vulkan-wsi" name="VWSI_VERSION_1_0" number="1.0" comment="Vulkan WSI API interface definitions">
+        <require comment="Monitor commands">
+            <command name="wsiEnumerateMonitors"/>
+            <command name="wsiGetMonitorProperties"/>
+        </require>
+        <require comment="Shell initialization">
+            <command name="wsiCreateShell"/>
+            <command name="wsiDestroyShell"/>
+            <command name="wsiGetShellCallbacks"/>
+            <command name="wsiEnumerateShellExtensions"/>
+        </require>
+        <require comment="Surface initialization">
+            <command name="wsiCreateSurface"/>
+        </require>
+        <require comment="Shell commands">
+            <command name="wsiCmdPollEvents"/>
+            <command name="wsiCmdSetResizable"/>
+            <command name="wsiCmdSetSize"/>
+            <command name="wsiCmdSetPosition"/>
+            <command name="wsiCmdSetFullscreen"/>
+            <command name="wsiCmdSetName"/>
+            <command name="wsiCmdSetIcon"/>
+            <command name="wsiCmdSetCursor"/>
+            <command name="wsiCmdSetCursorMode"/>
+            <command name="wsiCmdSetCursorPos"/>
+        </require>
+	</feature>
+	
+    <extensions comment="Vulkan WSI extension interface definitions">
+	</extensions>
+</registry>

@@ -344,13 +344,13 @@ VKAPI_ATTR VkResult VKAPI_CALL wsiCreateShell(const WsiShellCreateInfo *pCreateI
 
 VKAPI_ATTR void VKAPI_CALL wsiDestroyShell(WsiShell shell);
 
+VKAPI_ATTR void VKAPI_CALL wsiGetShellCallbacks(WsiShell shell, WsiShellCallbacks **pCallbacks);
+
 VKAPI_ATTR VkResult VKAPI_CALL wsiEnumerateShellExtensions(WsiShell shell, uint32_t *pExtensionCount, const char **pExtensions);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface);
 
-VKAPI_ATTR VkResult VKAPI_CALL wsiPollEvents(WsiShell shell);
-
-VKAPI_ATTR void VKAPI_CALL wsiGetShellCallbacks(WsiShell shell, WsiShellCallbacks **pCallbacks);
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdPollEvents(WsiShell shell);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetResizable(WsiShell shell, VkBool32 resizable);
 

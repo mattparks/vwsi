@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 3.1)
-project (vwsi)
+cmake_minimum_required (VERSION 3.0)
+project (VWSI)
 
 # Options
 option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
@@ -16,16 +16,21 @@ endif()
 message(STATUS "Shared Libs: ${BUILD_SHARED_LIBS}")
 
 # Cmake Modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${VWSI_SOURCE_DIR}/cmake")
 
 # Preprocessor
-find_package(Vulkan REQUIRED)
-set(LIBRARIES_INCLUDES ${LIBRARIES_INCLUDES} ${VULKAN_INCLUDE_DIR})
-set(LIBRARIES_LINKS ${LIBRARIES_LINKS} "${VULKAN_LIBRARY}")
+if (VWSI_SETUP_OUTPUT)
+    find_package(Vulkan REQUIRED)
+    set(LIBRARIES_INCLUDES ${LIBRARIES_INCLUDES} ${VULKAN_INCLUDE_DIR})
+    set(LIBRARIES_LINKS ${LIBRARIES_LINKS} "${VULKAN_LIBRARY}")
+endif()
 
 if(WIN32)
 	add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 elseif(UNIX AND NOT APPLE)
+	find_package(XCB REQUIRED)
+    set(LIBRARIES_INCLUDES ${LIBRARIES_INCLUDES} ${XCB_INCLUDES})
+    set(LIBRARIES_LINKS ${LIBRARIES_LINKS} ${XCB_LIBRARIES})
 	add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
 elseif(UNIX AND APPLE)
 	add_definitions(-DVK_USE_PLATFORM_COCOA_KHR)
