@@ -166,7 +166,7 @@ void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
 	SetWindowLongPtr(shell->hwnd_, GWLP_USERDATA, (LONG_PTR) shell);
 }
 
-VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
+VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocationCallbacks* pAllocator, WsiShell *pShell)
 {
 	if (pCreateInfo == NULL)
 	{
@@ -186,7 +186,7 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
 	return VK_SUCCESS;
 }
 
-void wsiDestroyShell(WsiShell shell)
+void wsiDestroyShell(WsiShell shell, const VkAllocationCallbacks* pAllocator)
 {
 	CloseWindow(shell->hwnd_);
 	FreeLibrary(shell->hmodule_);

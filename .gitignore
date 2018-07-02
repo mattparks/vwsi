@@ -6,5 +6,6 @@ cmake-build-debug/*
 cmake-build-release/*
 Build/*
 Release/*
+scripts/__pycache__/*
 
 .DS_Store

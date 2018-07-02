@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 	shellCreateInfo.pName = "Hello World";
 
 	WsiShell shell;
-	ErrorVk(wsiCreateShell(&shellCreateInfo, &shell));
+	ErrorVk(wsiCreateShell(&shellCreateInfo, nullptr, &shell));
 
 	WsiShellCallbacks *callbacks;
 	wsiGetShellCallbacks(shell, &callbacks);
@@ -268,10 +268,10 @@ int main(int argc, char **argv)
 
 	while (!m_closed)
 	{
-		wsiCmdPollEvents(shell);
+		ErrorVk(wsiCmdPollEvents(shell));
 	}
 
-	wsiDestroyShell(shell);
+	wsiDestroyShell(shell, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 
