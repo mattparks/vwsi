@@ -87,8 +87,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     <type>WsiShell</type>                                        shell,
     <type>WsiKey</type>   									 	 key,
     <type>WsiAction</type>   									 action,
-    <type>uint32_t</type>   									 modCount,
-    <type>WsiModifier</type>*   								 pMods);</type>
+    <type>int</type>               								 mods);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkMouseButtonCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>WsiMouseButton</type>   								 mouseButton,

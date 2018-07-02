@@ -113,8 +113,9 @@ void CallbackCursorScroll(WsiShell shell, float x, float y)
 {
 }
 
-void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, uint32_t modCount, WsiModifier *mods)
+void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, int mods)
 {
+	printf("%i, %i\n", key, action);
 }
 
 void CallbackMouseButton(WsiShell shell, WsiMouseButton mouseButton, WsiAction action)

@@ -1,16 +1,16 @@
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 
-// TODO: wsiEnumerateMonitors, wsiGetMonitorProperties
-// TODO: Window callbacks
-// TODO: Keyboard and Mouse implementation
-// TODO: Joystick connection
-// TODO: SetResizable, SetFullscreen, SetIcon, SetCursor, SetCursorMode, SetCursorPos
-
 #include "VWSI/vulkan_wsi.h"
 
 #include <windows.h>
+#include <windowsx.h>
+#include <shellapi.h>
 #include <stdio.h>
 #include <assert.h>
+
+#ifndef WM_MOUSEHWHEEL
+#define WM_MOUSEHWHEEL 0x020E
+#endif
 
 typedef struct WsiMonitor_T
 {
@@ -25,7 +25,219 @@ typedef struct WsiShell_T
 	HWND hwnd_;
 	HMODULE hmodule_;
 	PFN_vkGetInstanceProcAddr vkproc_;
+
+	int cursorTracked_;
+
+	short int keycodes_[512];
+	short int scancodes_[WSI_KEY_MAX_ENUM];
 } WsiShell_T;
+
+
+void createKeyTables(WsiShell shell)
+{
+	int scancode;
+
+    memset(shell->keycodes_, -1, sizeof(shell->keycodes_));
+    memset(shell->scancodes_, -1, sizeof(shell->scancodes_));
+
+    shell->keycodes_[0x00B] = WSI_KEY_0;
+    shell->keycodes_[0x002] = WSI_KEY_1;
+    shell->keycodes_[0x003] = WSI_KEY_2;
+    shell->keycodes_[0x004] = WSI_KEY_3;
+    shell->keycodes_[0x005] = WSI_KEY_4;
+    shell->keycodes_[0x006] = WSI_KEY_5;
+    shell->keycodes_[0x007] = WSI_KEY_6;
+    shell->keycodes_[0x008] = WSI_KEY_7;
+    shell->keycodes_[0x009] = WSI_KEY_8;
+    shell->keycodes_[0x00A] = WSI_KEY_9;
+    shell->keycodes_[0x01E] = WSI_KEY_A;
+    shell->keycodes_[0x030] = WSI_KEY_B;
+    shell->keycodes_[0x02E] = WSI_KEY_C;
+    shell->keycodes_[0x020] = WSI_KEY_D;
+    shell->keycodes_[0x012] = WSI_KEY_E;
+    shell->keycodes_[0x021] = WSI_KEY_F;
+    shell->keycodes_[0x022] = WSI_KEY_G;
+    shell->keycodes_[0x023] = WSI_KEY_H;
+    shell->keycodes_[0x017] = WSI_KEY_I;
+    shell->keycodes_[0x024] = WSI_KEY_J;
+    shell->keycodes_[0x025] = WSI_KEY_K;
+    shell->keycodes_[0x026] = WSI_KEY_L;
+    shell->keycodes_[0x032] = WSI_KEY_M;
+    shell->keycodes_[0x031] = WSI_KEY_N;
+    shell->keycodes_[0x018] = WSI_KEY_O;
+    shell->keycodes_[0x019] = WSI_KEY_P;
+    shell->keycodes_[0x010] = WSI_KEY_Q;
+    shell->keycodes_[0x013] = WSI_KEY_R;
+    shell->keycodes_[0x01F] = WSI_KEY_S;
+    shell->keycodes_[0x014] = WSI_KEY_T;
+    shell->keycodes_[0x016] = WSI_KEY_U;
+    shell->keycodes_[0x02F] = WSI_KEY_V;
+    shell->keycodes_[0x011] = WSI_KEY_W;
+    shell->keycodes_[0x02D] = WSI_KEY_X;
+    shell->keycodes_[0x015] = WSI_KEY_Y;
+    shell->keycodes_[0x02C] = WSI_KEY_Z;
+
+    shell->keycodes_[0x028] = WSI_KEY_APOSTROPHE;
+    shell->keycodes_[0x02B] = WSI_KEY_BACKSLASH;
+    shell->keycodes_[0x033] = WSI_KEY_COMMA;
+    shell->keycodes_[0x00D] = WSI_KEY_EQUAL;
+    shell->keycodes_[0x029] = WSI_KEY_GRAVE_ACCENT;
+    shell->keycodes_[0x01A] = WSI_KEY_LEFT_BRACKET;
+    shell->keycodes_[0x00C] = WSI_KEY_MINUS;
+    shell->keycodes_[0x034] = WSI_KEY_PERIOD;
+    shell->keycodes_[0x01B] = WSI_KEY_RIGHT_BRACKET;
+    shell->keycodes_[0x027] = WSI_KEY_SEMICOLON;
+    shell->keycodes_[0x035] = WSI_KEY_SLASH;
+    shell->keycodes_[0x056] = WSI_KEY_WORLD_2;
+
+    shell->keycodes_[0x00E] = WSI_KEY_BACKSPACE;
+    shell->keycodes_[0x153] = WSI_KEY_DELETE;
+    shell->keycodes_[0x14F] = WSI_KEY_END;
+    shell->keycodes_[0x01C] = WSI_KEY_ENTER;
+    shell->keycodes_[0x001] = WSI_KEY_ESCAPE;
+    shell->keycodes_[0x147] = WSI_KEY_HOME;
+    shell->keycodes_[0x152] = WSI_KEY_INSERT;
+    shell->keycodes_[0x15D] = WSI_KEY_MENU;
+    shell->keycodes_[0x151] = WSI_KEY_PAGE_DOWN;
+    shell->keycodes_[0x149] = WSI_KEY_PAGE_UP;
+    shell->keycodes_[0x045] = WSI_KEY_PAUSE;
+    shell->keycodes_[0x146] = WSI_KEY_PAUSE;
+    shell->keycodes_[0x039] = WSI_KEY_SPACE;
+    shell->keycodes_[0x00F] = WSI_KEY_TAB;
+    shell->keycodes_[0x03A] = WSI_KEY_CAPS_LOCK;
+    shell->keycodes_[0x145] = WSI_KEY_NUM_LOCK;
+    shell->keycodes_[0x046] = WSI_KEY_SCROLL_LOCK;
+    shell->keycodes_[0x03B] = WSI_KEY_F1;
+    shell->keycodes_[0x03C] = WSI_KEY_F2;
+    shell->keycodes_[0x03D] = WSI_KEY_F3;
+    shell->keycodes_[0x03E] = WSI_KEY_F4;
+    shell->keycodes_[0x03F] = WSI_KEY_F5;
+    shell->keycodes_[0x040] = WSI_KEY_F6;
+    shell->keycodes_[0x041] = WSI_KEY_F7;
+    shell->keycodes_[0x042] = WSI_KEY_F8;
+    shell->keycodes_[0x043] = WSI_KEY_F9;
+    shell->keycodes_[0x044] = WSI_KEY_F10;
+    shell->keycodes_[0x057] = WSI_KEY_F11;
+    shell->keycodes_[0x058] = WSI_KEY_F12;
+    shell->keycodes_[0x064] = WSI_KEY_F13;
+    shell->keycodes_[0x065] = WSI_KEY_F14;
+    shell->keycodes_[0x066] = WSI_KEY_F15;
+    shell->keycodes_[0x067] = WSI_KEY_F16;
+    shell->keycodes_[0x068] = WSI_KEY_F17;
+    shell->keycodes_[0x069] = WSI_KEY_F18;
+    shell->keycodes_[0x06A] = WSI_KEY_F19;
+    shell->keycodes_[0x06B] = WSI_KEY_F20;
+    shell->keycodes_[0x06C] = WSI_KEY_F21;
+    shell->keycodes_[0x06D] = WSI_KEY_F22;
+    shell->keycodes_[0x06E] = WSI_KEY_F23;
+    shell->keycodes_[0x076] = WSI_KEY_F24;
+    shell->keycodes_[0x038] = WSI_KEY_LEFT_ALT;
+    shell->keycodes_[0x01D] = WSI_KEY_LEFT_CONTROL;
+    shell->keycodes_[0x02A] = WSI_KEY_LEFT_SHIFT;
+    shell->keycodes_[0x15B] = WSI_KEY_LEFT_SUPER;
+    shell->keycodes_[0x137] = WSI_KEY_PRINT_SCREEN;
+    shell->keycodes_[0x138] = WSI_KEY_RIGHT_ALT;
+    shell->keycodes_[0x11D] = WSI_KEY_RIGHT_CONTROL;
+    shell->keycodes_[0x036] = WSI_KEY_RIGHT_SHIFT;
+    shell->keycodes_[0x15C] = WSI_KEY_RIGHT_SUPER;
+    shell->keycodes_[0x150] = WSI_KEY_DOWN;
+    shell->keycodes_[0x14B] = WSI_KEY_LEFT;
+    shell->keycodes_[0x14D] = WSI_KEY_RIGHT;
+    shell->keycodes_[0x148] = WSI_KEY_UP;
+
+    shell->keycodes_[0x052] = WSI_KEY_PAD_0;
+    shell->keycodes_[0x04F] = WSI_KEY_PAD_1;
+    shell->keycodes_[0x050] = WSI_KEY_PAD_2;
+    shell->keycodes_[0x051] = WSI_KEY_PAD_3;
+    shell->keycodes_[0x04B] = WSI_KEY_PAD_4;
+    shell->keycodes_[0x04C] = WSI_KEY_PAD_5;
+    shell->keycodes_[0x04D] = WSI_KEY_PAD_6;
+    shell->keycodes_[0x047] = WSI_KEY_PAD_7;
+    shell->keycodes_[0x048] = WSI_KEY_PAD_8;
+    shell->keycodes_[0x049] = WSI_KEY_PAD_9;
+    shell->keycodes_[0x04E] = WSI_KEY_PAD_ADD;
+    shell->keycodes_[0x053] = WSI_KEY_PAD_DECIMAL;
+    shell->keycodes_[0x135] = WSI_KEY_PAD_DIVIDE;
+    shell->keycodes_[0x11C] = WSI_KEY_PAD_ENTER;
+    shell->keycodes_[0x037] = WSI_KEY_PAD_MULTIPLY;
+    shell->keycodes_[0x04A] = WSI_KEY_PAD_SUBTRACT;
+
+    for (scancode = 0; scancode < 512; scancode++)
+    {
+        if (shell->keycodes_[scancode] > 0)
+        {
+			shell->scancodes_[shell->keycodes_[scancode]] = scancode;
+        }
+    }
+}
+
+WsiKey translateKey(WsiShell shell, WPARAM wParam, LPARAM lParam)
+{
+    // The Ctrl keys require special handling
+    if (wParam == VK_CONTROL)
+    {
+        MSG next;
+        DWORD time;
+
+        // Right side keys have the extended key bit set
+        if (lParam & 0x01000000)
+        {
+            return WSI_KEY_RIGHT_CONTROL;
+        }
+
+        // HACK: Alt Gr sends Left Ctrl and then Right Alt in close sequence
+        //       We only want the Right Alt message, so if the next message is
+        //       Right Alt we ignore this (synthetic) Left Ctrl message
+        time = GetMessageTime();
+
+        if (PeekMessageW(&next, NULL, 0, 0, PM_NOREMOVE))
+        {
+            if (next.message == WM_KEYDOWN ||
+                next.message == WM_SYSKEYDOWN ||
+                next.message == WM_KEYUP ||
+                next.message == WM_SYSKEYUP)
+            {
+                if (next.wParam == VK_MENU &&
+                    (next.lParam & 0x01000000) &&
+                    next.time == time)
+                {
+                    // Next message is Right Alt down so discard this
+                    return WSI_KEY_UNKNOWN;
+                }
+            }
+        }
+
+        return WSI_KEY_LEFT_CONTROL;
+    }
+
+    if (wParam == VK_PROCESSKEY)
+    {
+        // IME notifies that keys have been filtered by setting the virtual key-code to VK_PROCESSKEY
+        return WSI_KEY_UNKNOWN;
+    }
+
+    return shell->keycodes_[HIWORD(lParam) & 0x1FF];
+}
+
+int getKeyMods(void)
+{
+	int mods = 0;
+
+	if (GetKeyState(VK_SHIFT) & 0x8000)
+		mods |= WSI_MODIFIER_SHIFT;
+	if (GetKeyState(VK_CONTROL) & 0x8000)
+		mods |= WSI_MODIFIER_CONTROL;
+	if (GetKeyState(VK_MENU) & 0x8000)
+		mods |= WSI_MODIFIER_ALT;
+	if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000)
+		mods |= WSI_MODIFIER_SUPER;
+	if (GetKeyState(VK_CAPITAL) & 1)
+		mods |= WSI_MODIFIER_CAPS_LOCK;
+	if (GetKeyState(VK_NUMLOCK) & 1)
+		mods |= WSI_MODIFIER_NUM_LOCK;
+
+	return mods;
+}
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -38,17 +250,11 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
-	case WM_SIZE:
+	case WM_DISPLAYCHANGE:
 	{
-		UINT w = LOWORD(lParam);
-		UINT h = HIWORD(lParam);
-
-		if (shell->callbacks_.pfnSize != NULL)
-		{
-			shell->callbacks_.pfnSize(shell, w, h, FALSE);
-		}
-	}
+		// TODO: Update monitor list
 		break;
+	}
 	case WM_MOVE:
 	{
 		UINT x = LOWORD(lParam);
@@ -58,41 +264,244 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			shell->callbacks_.pfnPosition(shell, x, y);
 		}
-	}
-	break;
-	case WM_KEYDOWN:
-	{
-	}
+
 		break;
+	}
+	case WM_SIZE:
+	{
+		UINT w = LOWORD(lParam);
+		UINT h = HIWORD(lParam);
+
+		if (shell->callbacks_.pfnSize != NULL)
+		{
+			shell->callbacks_.pfnSize(shell, w, h, FALSE);
+		}
+
+		break;
+	}
+    case WM_SETFOCUS:
+    {
+		if (shell->callbacks_.pfnFocus != NULL)
+		{
+			shell->callbacks_.pfnFocus(shell, TRUE);
+		}
+
+		break;
+    }
+    case WM_KILLFOCUS:
+    {
+		if (shell->callbacks_.pfnFocus != NULL)
+		{
+			shell->callbacks_.pfnFocus(shell, FALSE);
+		}
+
+		break;
+    }
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
 	case WM_PAINT:
+	{
 		ValidateRect(shell->hwnd_, NULL);
 		break;
+	}
+	case WM_DESTROY:
+	{
+		break;
+	}
+	// TODO: Iconify
 	case WM_CLOSE:
 	{
 		if (shell->callbacks_.pfnClose != NULL)
 		{
 			shell->callbacks_.pfnClose(shell);
 		}
-	}
-		break;
-	case WM_DESTROY:
-	{
 
-	}
 		break;
-	default:
+	}
+    case WM_MOUSEMOVE:
+    {
+        int x = GET_X_LPARAM(lParam);
+        int y = GET_Y_LPARAM(lParam);
+
+		if (shell->callbacks_.pfnCursorPosition != NULL)
+		{
+			shell->callbacks_.pfnCursorPosition(shell, x, y);
+		}
+
+		if (!shell->cursorTracked_)
+		{
+			if (shell->callbacks_.pfnCursorEnter != NULL)
+			{
+				shell->callbacks_.pfnCursorEnter(shell, TRUE);
+			}
+
+            TRACKMOUSEEVENT tme;
+            ZeroMemory(&tme, sizeof(tme));
+            tme.cbSize = sizeof(tme);
+            tme.dwFlags = TME_LEAVE;
+            tme.hwndTrack = shell->hwnd_;
+            TrackMouseEvent(&tme);
+
+			shell->cursorTracked_ = 1;
+		}
+
+		break;
+    }
+    case WM_MOUSELEAVE:
+    {
+		if (shell->callbacks_.pfnCursorEnter != NULL)
+		{
+			shell->callbacks_.pfnCursorEnter(shell, FALSE);
+		}
+
+		shell->cursorTracked_ = 0;
+
+		break;
+    }
+    case WM_MOUSEHWHEEL:
+    {
+		if (shell->callbacks_.pfnCursorScroll != NULL)
+		{
+			shell->callbacks_.pfnCursorScroll(shell, -(SHORT) HIWORD(wParam) / (float) WHEEL_DELTA, 0.0f);
+		}
+
+		break;
+    }
+    case WM_MOUSEWHEEL:
+    {
+		if (shell->callbacks_.pfnCursorScroll != NULL)
+		{
+			shell->callbacks_.pfnCursorScroll(shell, 0.0f, (SHORT) HIWORD(wParam) / (float) WHEEL_DELTA);
+		}
+
+		break;
+    }
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_XBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_XBUTTONUP:
+    {
+    	WsiMouseButton button;
+    	WsiAction action;
+
+        if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP)
+        {
+            button = WSI_MOUSE_BUTTON_LEFT;
+        }
+        else if (uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP)
+        {
+            button = WSI_MOUSE_BUTTON_RIGHT;
+        }
+        else if (uMsg == WM_MBUTTONDOWN || uMsg == WM_MBUTTONUP)
+        {
+            button = WSI_MOUSE_BUTTON_MIDDLE;
+        }
+        else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+        {
+            button = WSI_MOUSE_BUTTON_4;
+        }
+        else
+        {
+            button = WSI_MOUSE_BUTTON_5;
+        }
+
+        if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN ||
+            uMsg == WM_MBUTTONDOWN || uMsg == WM_XBUTTONDOWN)
+        {
+            action = WSI_ACTION_PRESS;
+        }
+        else
+        {
+            action = WSI_ACTION_RELEASE;
+        }
+
+		if (shell->callbacks_.pfnMouseButton != NULL)
+		{
+			shell->callbacks_.pfnMouseButton(shell, button, action);
+		}
+
+		break;
+	}
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
 	{
-		return DefWindowProc(shell->hwnd_, uMsg, wParam, lParam);
-	}
+		const int key = translateKey(shell, wParam, lParam);
+		const int scancode = (lParam >> 16) & 0x1ff;
+		const int action = ((lParam >> 31) & 1) ? WSI_ACTION_RELEASE : WSI_ACTION_PRESS;
+		const int mods = getKeyMods();
+
+		if (key == WSI_KEY_UNKNOWN)
+			break;
+
+		if (shell->callbacks_.pfnKey != NULL)
+		{
+			if (action == WSI_ACTION_RELEASE && wParam == VK_SHIFT)
+			{
+				// HACK: Release both Shift keys on Shift up event, as when both
+				//       are pressed the first release does not emit any event
+				// NOTE: The other half of this is in _glfwPlatformPollEvents
+				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, action, mods);
+				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, action, mods);
+			}
+			else if (wParam == VK_SNAPSHOT)
+			{
+				// HACK: Key down is not reported for the Print Screen key
+				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_PRESS, mods);
+				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_RELEASE, mods);
+			}
+			else
+			{
+				shell->callbacks_.pfnKey(shell, key, action, mods);
+			}
+		}
+
 		break;
+	}
+    /*case WM_DEVICECHANGE:
+    {
+    	if (wParam == DBT_DEVICEARRIVAL)
+    	{
+            DEV_BROADCAST_HDR *dbh = (DEV_BROADCAST_HDR*) lParam;
+
+            if (dbh && dbh->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+            {
+				if (shell->callbacks_.pfnJoystickConnect != NULL)
+				{
+					shell->callbacks_.pfnJoystickConnect(shell, WSI_JOYSTICK_1, "test", 10, 10, TRUE);
+				}
+			}
+    	}
+    	else if (wParam == DBT_DEVICEREMOVECOMPLETE)
+    	{
+        	DEV_BROADCAST_HDR *dbh = (DEV_BROADCAST_HDR*) lParam;
+
+        	if (dbh && dbh->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+        	{
+				if (shell->callbacks_.pfnJoystickConnect != NULL)
+				{
+					shell->callbacks_.pfnJoystickConnect(shell, WSI_JOYSTICK_1, "NULL", 0, 0, FALSE);
+				}
+        	}
+    	}
+		break;
+	}*/
+	// TODO: Joystick connect, button, axis
 	}
 
-	return 0;
+	return DefWindowProc(shell->hwnd_, uMsg, wParam, lParam);
 }
 
 VkResult wsiEnumerateMonitors(uint32_t *pMonitorCount, WsiMonitor *pMonitors)
 {
-	*pMonitorCount = 1;
+	*pMonitorCount = 1; // TODO: Multiple monitors
 
 	if (pMonitors == NULL)
 	{
@@ -179,6 +588,7 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocatio
 	memset(shell, 0, sizeof(shell));
 	shell->callbacks_ = *pCreateInfo->pCallbacks;
 
+	createKeyTables(shell);
 	load_vk(shell);
 	create_window(shell, *pCreateInfo);
 
@@ -241,6 +651,12 @@ VkResult wsiCmdPollEvents(WsiShell shell)
 				shell->callbacks_.pfnClose(shell);
 			}
 
+		if (shell->callbacks_.pfnIconify != NULL)
+		{
+			printf("icn\n");
+			shell->callbacks_.pfnIconify(shell, IsIconic(shell->hwnd_));
+		}
+
 			return VK_SUCCESS;
 		}
 
@@ -253,19 +669,18 @@ VkResult wsiCmdPollEvents(WsiShell shell)
 
 VkResult wsiCmdSetResizable(WsiShell shell, VkBool32 resizable)
 {
-	return VK_SUCCESS;
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetSize(WsiShell shell, uint32_t width, uint32_t height)
 {
-	RECT win_rect = {0, 0, width, height};
-	MoveWindow(shell->hwnd_, 0, 0, win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, SWP_NOZORDER | SWP_NOMOVE);
+	SetWindowPos(shell->hwnd_, HWND_TOP, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
 	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetPosition(WsiShell shell, uint32_t x, uint32_t y)
 {
-	MoveWindow(shell->hwnd_, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+	MoveWindow(shell->hwnd_, x, y, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 	return VK_SUCCESS;
 }
 
@@ -277,26 +692,27 @@ VkResult wsiCmdSetName(WsiShell shell, const char *pName)
 
 VkResult wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, VkBool32 fullscreen)
 {
-	return VK_SUCCESS;
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetIcon(WsiShell shell, WsiImage icon)
 {
-	return VK_SUCCESS;
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetCursor(WsiShell shell, WsiImage cursor)
 {
-	return VK_SUCCESS;
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 {
-	return VK_SUCCESS;
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetCursorPos(WsiShell shell, float x, float y)
 {
+	SetCursorPos(x, y);
 	return VK_SUCCESS;
 }
 

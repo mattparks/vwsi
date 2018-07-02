@@ -294,8 +294,7 @@ typedef void (VKAPI_PTR *PFN_vkKeyCallback)(
     WsiShell                                     shell,
     WsiKey   									 key,
     WsiAction   								 action,
-    uint32_t   									 modCount,
-    WsiModifier*   								 pMods);
+	int 									     mods);
 
 typedef void (VKAPI_PTR *PFN_vkTouchCallback)(
     WsiShell                                     shell,
