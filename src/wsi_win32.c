@@ -11,6 +11,12 @@
 #ifndef WM_MOUSEHWHEEL
 #define WM_MOUSEHWHEEL 0x020E
 #endif
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#endif
 
 typedef struct WsiMonitor_T
 {
@@ -19,19 +25,35 @@ typedef struct WsiMonitor_T
 
 typedef struct WsiShell_T
 {
+	// Callbacks.
 	WsiShellCallbacks callbacks_;
 
+	// Window.
 	HINSTANCE hinstance_;
 	HWND hwnd_;
 	HMODULE hmodule_;
 	PFN_vkGetInstanceProcAddr vkproc_;
 
+	// Cursor movement.
 	int cursorTracked_;
+	int cursorDisabled_;
+	int cursorPosX, cursorPosY;
+	WsiCursorMode cursorMode_;
+	HCURSOR cursor_;
 
+	// Mouse input.
+	RAWINPUT *rawInput_;
+	int rawInputSize_;
+
+	// Keyboard input.
 	short int keycodes_[512];
 	short int scancodes_[WSI_KEY_MAX_ENUM];
 } WsiShell_T;
 
+void reportError(const char *message)
+{
+	printf("VWSI Error: %s\n", message);
+}
 
 void createKeyTables(WsiShell shell)
 {
@@ -185,9 +207,7 @@ WsiKey translateKey(WsiShell shell, WPARAM wParam, LPARAM lParam)
             return WSI_KEY_RIGHT_CONTROL;
         }
 
-        // HACK: Alt Gr sends Left Ctrl and then Right Alt in close sequence
-        //       We only want the Right Alt message, so if the next message is
-        //       Right Alt we ignore this (synthetic) Left Ctrl message
+        // If Right Alt, ignore this (synthetic) Left Ctrl message
         time = GetMessageTime();
 
         if (PeekMessageW(&next, NULL, 0, 0, PM_NOREMOVE))
@@ -224,19 +244,71 @@ int getKeyMods(void)
 	int mods = 0;
 
 	if (GetKeyState(VK_SHIFT) & 0x8000)
+	{
 		mods |= WSI_MODIFIER_SHIFT;
+	}
+
 	if (GetKeyState(VK_CONTROL) & 0x8000)
+	{
 		mods |= WSI_MODIFIER_CONTROL;
+	}
+
 	if (GetKeyState(VK_MENU) & 0x8000)
+	{
 		mods |= WSI_MODIFIER_ALT;
+	}
+
 	if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000)
+	{
 		mods |= WSI_MODIFIER_SUPER;
+	}
+
 	if (GetKeyState(VK_CAPITAL) & 1)
+	{
 		mods |= WSI_MODIFIER_CAPS_LOCK;
+	}
+
 	if (GetKeyState(VK_NUMLOCK) & 1)
+	{
 		mods |= WSI_MODIFIER_NUM_LOCK;
+	}
 
 	return mods;
+}
+
+void updateCursorImage(WsiShell shell)
+{
+	if (shell->cursorMode_ == WSI_CURSOR_MODE_NORMAL)
+    {
+    	if (shell->cursor_ != NULL)
+    	{
+    		SetCursor(shell->cursor_);
+		}
+		else
+		{
+			SetCursor(LoadCursorW(NULL, IDC_ARROW));
+		}
+    }
+    else
+    {
+    	SetCursor(NULL);
+    }
+}
+
+void updateCursorClip(WsiShell shell)
+{
+	if (shell != NULL)
+	{
+		RECT clipRect;
+		GetClientRect(shell->hwnd_, &clipRect);
+		ClientToScreen(shell->hwnd_, (POINT*) &clipRect.left);
+		ClientToScreen(shell->hwnd_, (POINT*) &clipRect.right);
+		ClipCursor(&clipRect);
+	}
+	else
+	{
+		ClipCursor(NULL);
+	}
 }
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -260,6 +332,11 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		UINT x = LOWORD(lParam);
 		UINT y = HIWORD(lParam);
 
+		if (shell->cursorDisabled_)
+		{
+			updateCursorClip(shell);
+		}
+
 		if (shell->callbacks_.pfnPosition != NULL)
 		{
 			shell->callbacks_.pfnPosition(shell, x, y);
@@ -269,8 +346,14 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_SIZE:
 	{
+        const int iconified = wParam == SIZE_MINIMIZED;
 		UINT w = LOWORD(lParam);
 		UINT h = HIWORD(lParam);
+
+		if (shell->cursorDisabled_)
+		{
+			updateCursorClip(shell);
+		}
 
 		if (shell->callbacks_.pfnSize != NULL)
 		{
@@ -320,16 +403,64 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		break;
 	}
-    case WM_MOUSEMOVE:
+    case WM_SETCURSOR:
     {
-        int x = GET_X_LPARAM(lParam);
-        int y = GET_Y_LPARAM(lParam);
+        if (LOWORD(lParam) == HTCLIENT)
+        {
+            updateCursorImage(shell);
+
+            return TRUE;
+        }
+
+        break;
+    }
+	case WM_INPUT:
+	{
+		HRAWINPUT ri = (HRAWINPUT) lParam;
+
+		UINT size;
+		GetRawInputData(ri, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));
+
+		if (size > (UINT) shell->rawInputSize_)
+		{
+			free(shell->rawInput_);
+			shell->rawInput_ = calloc(size, 1);
+			shell->rawInputSize_ = size;
+		}
+
+		size = shell->rawInputSize_;
+
+		if (GetRawInputData(ri, RID_INPUT, shell->rawInput_, &size,
+			sizeof(RAWINPUTHEADER)) == (UINT) -1)
+		{
+			reportError("Win32: Failed to retrieve raw input data");
+			break;
+		}
+
+		RAWINPUT* data = shell->rawInput_;
+
+		if (data->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
+		{
+			shell->cursorPosX = data->data.mouse.lLastX;
+			shell->cursorPosY = data->data.mouse.lLastY;
+		}
+		else
+		{
+			shell->cursorPosX += data->data.mouse.lLastX;
+			shell->cursorPosY += data->data.mouse.lLastY;
+		}
+
+		//	wsiCmdSetCursorPos(shell, shell->cursorPosX, shell->cursorPosY);
 
 		if (shell->callbacks_.pfnCursorPosition != NULL)
 		{
-			shell->callbacks_.pfnCursorPosition(shell, x, y);
+			shell->callbacks_.pfnCursorPosition(shell, shell->cursorPosX, shell->cursorPosY);
 		}
 
+		break;
+	}
+    case WM_MOUSEMOVE:
+    {
 		if (!shell->cursorTracked_)
 		{
 			if (shell->callbacks_.pfnCursorEnter != NULL)
@@ -439,21 +570,21 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		const int mods = getKeyMods();
 
 		if (key == WSI_KEY_UNKNOWN)
+		{
 			break;
+		}
 
 		if (shell->callbacks_.pfnKey != NULL)
 		{
 			if (action == WSI_ACTION_RELEASE && wParam == VK_SHIFT)
 			{
-				// HACK: Release both Shift keys on Shift up event, as when both
-				//       are pressed the first release does not emit any event
-				// NOTE: The other half of this is in _glfwPlatformPollEvents
+				// Release both Shift keys on Shift up event
 				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, action, mods);
 				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, action, mods);
 			}
 			else if (wParam == VK_SNAPSHOT)
 			{
-				// HACK: Key down is not reported for the Print Screen key
+				// Key down is not reported for the Print Screen key
 				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_PRESS, mods);
 				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_RELEASE, mods);
 			}
@@ -520,6 +651,89 @@ void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *pMonitorP
 	pMonitorProperties->height = GetSystemMetrics(SM_CYSCREEN);
 }
 
+HICON createIcon(WsiImage image, int xhot, int yhot, VkBool32 icon)
+{
+    int i;
+    HDC dc;
+    HICON handle;
+    HBITMAP color, mask;
+    BITMAPV5HEADER bi;
+    ICONINFO ii;
+    unsigned char* target = NULL;
+    unsigned char* source = image.pixels;
+
+    ZeroMemory(&bi, sizeof(bi));
+    bi.bV5Size        = sizeof(bi);
+    bi.bV5Width       = image.width;
+    bi.bV5Height      = -image.height;
+    bi.bV5Planes      = 1;
+    bi.bV5BitCount    = 32;
+    bi.bV5Compression = BI_BITFIELDS;
+    bi.bV5RedMask     = 0x00ff0000;
+    bi.bV5GreenMask   = 0x0000ff00;
+    bi.bV5BlueMask    = 0x000000ff;
+    bi.bV5AlphaMask   = 0xff000000;
+
+    dc = GetDC(NULL);
+    color = CreateDIBSection(dc,
+                             (BITMAPINFO*) &bi,
+                             DIB_RGB_COLORS,
+                             (void**) &target,
+                             NULL,
+                             (DWORD) 0);
+    ReleaseDC(NULL, dc);
+
+    if (!color)
+    {
+        reportError("Win32: Failed to create RGBA bitmap");
+        return NULL;
+    }
+
+    mask = CreateBitmap(image.width, image.height, 1, 1, NULL);
+    if (!mask)
+    {
+        reportError("Win32: Failed to create mask bitmap");
+        DeleteObject(color);
+        return NULL;
+    }
+
+    for (i = 0;  i < image.width * image.height;  i++)
+    {
+        target[0] = source[2];
+        target[1] = source[1];
+        target[2] = source[0];
+        target[3] = source[3];
+        target += 4;
+        source += 4;
+    }
+
+    ZeroMemory(&ii, sizeof(ii));
+    ii.fIcon    = icon;
+    ii.xHotspot = xhot;
+    ii.yHotspot = yhot;
+    ii.hbmMask  = mask;
+    ii.hbmColor = color;
+
+    handle = CreateIconIndirect(&ii);
+
+    DeleteObject(color);
+    DeleteObject(mask);
+
+    if (!handle)
+    {
+        if (icon)
+        {
+			reportError("Win32: Failed to create icon");
+        }
+        else
+        {
+			reportError("Win32: Failed to create cursor");
+        }
+    }
+
+    return handle;
+}
+
 void load_vk(WsiShell shell)
 {
 	const char filename[] = "vulkan-1.dll";
@@ -555,10 +769,10 @@ void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
 	win_class.lpszClassName = "Shell";
 	win_class.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
 
-	//if (createInfo.pIcon != NULL)
-	//{
-	//	win_class.hIcon = Load;
-	//}
+	if (createInfo.pIcon != NULL)
+	{
+		win_class.hIcon = createIcon(*createInfo.pIcon, 0, 0, TRUE);
+	}
 
 	RegisterClassEx(&win_class);
 
@@ -573,6 +787,16 @@ void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
 	SetForegroundWindow(shell->hwnd_);
 	SetFocus(shell->hwnd_);
 	SetWindowLongPtr(shell->hwnd_, GWLP_USERDATA, (LONG_PTR) shell);
+}
+
+void create_input(WsiShell shell)
+{
+    RAWINPUTDEVICE Rid[1];
+    Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+    Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+    Rid[0].dwFlags = RIDEV_INPUTSINK;
+    Rid[0].hwndTarget = shell->hwnd_;
+    RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 }
 
 VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocationCallbacks* pAllocator, WsiShell *pShell)
@@ -591,6 +815,7 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocatio
 	createKeyTables(shell);
 	load_vk(shell);
 	create_window(shell, *pCreateInfo);
+	create_input(shell);
 
 	*pShell = shell;
 	return VK_SUCCESS;
@@ -697,17 +922,62 @@ VkResult wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, VkBool32 fullsc
 
 VkResult wsiCmdSetIcon(WsiShell shell, WsiImage icon)
 {
-	return VK_SUCCESS; // TODO
+	HICON bigIcon = createIcon(icon, 0, 0, TRUE);
+
+	if (bigIcon == NULL)
+	{
+		return VK_ERROR_INITIALIZATION_FAILED;
+	}
+
+    SendMessage(shell->hwnd_, WM_SETICON, ICON_BIG, (LPARAM) bigIcon);
+	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetCursor(WsiShell shell, WsiImage cursor)
 {
-	return VK_SUCCESS; // TODO
+	HICON icon = createIcon(cursor, 0, 0, FALSE);
+
+	if (icon == NULL)
+	{
+		return VK_ERROR_INITIALIZATION_FAILED;
+	}
+
+	shell->cursor_ = (HCURSOR) icon;
+	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 {
-	return VK_SUCCESS; // TODO
+	shell->cursorMode_ = mode;
+
+	if (mode == WSI_CURSOR_MODE_DISABLED)
+	{
+    	const RAWINPUTDEVICE rid = { 0x01, 0x02, 0, shell->hwnd_ };
+
+		shell->cursorDisabled_ = TRUE;
+		updateCursorImage(shell);
+		updateCursorClip(shell);
+
+		if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
+    	{
+    	    reportError("Win32: Failed to register raw input device");
+    	}
+	}
+	else
+	{
+    	const RAWINPUTDEVICE rid = { 0x01, 0x02, RIDEV_REMOVE, NULL };
+
+		shell->cursorDisabled_ = FALSE;
+		updateCursorClip(NULL);
+		updateCursorImage(shell);
+
+    	if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
+    	{
+    	    reportError("Win32: Failed to remove raw input device");
+    	}
+	}
+
+	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetCursorPos(WsiShell shell, float x, float y)

@@ -1,9 +1,10 @@
 # Generate .h
-Based off of the XML to .H generator found in https://github.com/KhronosGroup/Vulkan-Docs/tree/master/xml
-`python genvk.py -registry ./vwsi.xml -o ../include/VWSI vulkan_wsi.h`
+Based off of the XML to .H generator found in [Vulkan Docs](https://github.com/KhronosGroup/Vulkan-Docs/tree/master/xml).
+
+First extract pyscripts.zip into the scripts folder, then run: `python genvk.py -registry ./vwsi.xml -o ../include/VWSI vulkan_wsi.h`
 
 # Generate .hpp
-Uses the same generator as https://github.com/KhronosGroup/Vulkan-Hpp
+To generate a .hpp version of VWSI use [Vulkan Hpp](https://github.com/KhronosGroup/Vulkan-Hpp).
 
 # Meta loader
-Dynamically load entrypoints https://github.com/zeux/volk
+To dynamically load VWSI entrypoints use [volk](https://github.com/zeux/volk).

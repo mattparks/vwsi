@@ -191,11 +191,15 @@ int main(int argc, char **argv)
 	callbacks->pfnJoystickButton = CallbackJoystickButton;
 	callbacks->pfnJoystickAxis = CallbackJoystickAxis;
 
-//	wsiCmdSetSize(shell, 720, 480);
-//	wsiCmdSetPosition(shell, 300, 200);
-//	wsiCmdSetName(shell, "New Name");
-//	wsiCmdSetIcon(shell, &icon);
-//	wsiCmdSetFullscreen(shell, monitors[0], true);
+//	ErrorVk(wsiCmdSetResizable(shell, false));
+//	ErrorVk(wsiCmdSetSize(shell, 720, 480));
+//	ErrorVk(wsiCmdSetPosition(shell, 300, 200));
+//	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], true));
+//	ErrorVk(wsiCmdSetName(shell, "New Name"));
+//	ErrorVk(wsiCmdSetIcon(shell, &icon));
+//	ErrorVk(wsiCmdSetCursor(shell, &cursor));
+//	ErrorVk(wsiCmdSetCursorMode(shell, WSI_CURSOR_MODE_DISABLED));
+//	ErrorVk(wsiCmdSetCursorPos(shell, 100, 100));
 
 	VkApplicationInfo applicationInfo = {};
 	applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
