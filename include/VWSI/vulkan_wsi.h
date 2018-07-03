@@ -269,8 +269,10 @@ typedef void (VKAPI_PTR *PFN_vkCloseCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorPositionCallback)(
     WsiShell                                        shell,
-    uint32_t                                        x,
-    uint32_t                                        y);
+	uint32_t                                        x,
+	uint32_t                                        y,
+	float                                           dx,
+	float                                           dy);
 
 typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
     WsiShell                                        shell,

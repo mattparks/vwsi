@@ -76,7 +76,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>uint32_t</type>                                        x,
-    <type>uint32_t</type>                                        y);</type>
+    <type>uint32_t</type>                                        y
+    <type>float</type>                                           dx,
+    <type>float</type>                                           dy);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>VkBool32</type>                                        entered);</type>

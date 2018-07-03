@@ -311,28 +311,45 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		RAWINPUT* data = shell->rawInput_;
+		uint32_t x, y;
+		float dx, dy;
 
 		if (data->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
 		{
-			shell->cursorPosX = data->data.mouse.lLastX;
-			shell->cursorPosY = data->data.mouse.lLastY;
+			x = data->data.mouse.lLastX;
+			y = data->data.mouse.lLastX;
+			dx = x - shell->cursorPosX;
+			dy = y - shell->cursorPosY;
 		}
 		else
 		{
-			shell->cursorPosX += data->data.mouse.lLastX;
-			shell->cursorPosY += data->data.mouse.lLastY;
-		//	wsiCmdSetCursorPos(shell, shell->cursorPosX, shell->cursorPosY);
+			POINT ptCursor;
+			GetCursorPos(&ptCursor);
+			ScreenToClient(shell->hwnd_, &ptCursor);
+
+			dx = data->data.mouse.lLastX;
+			dy = data->data.mouse.lLastY;
+			x = ptCursor.x;
+			y = ptCursor.y;
 		}
+
+		shell->cursorPosX = x;
+		shell->cursorPosY = y;
 
 		if (shell->callbacks_.pfnCursorPosition != NULL)
 		{
-			shell->callbacks_.pfnCursorPosition(shell, shell->cursorPosX, shell->cursorPosY);
+			shell->callbacks_.pfnCursorPosition(shell, x, y, dx, dy);
 		}
 
 		break;
 	}
     case WM_MOUSEMOVE:
     {
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
+		shell->cursorPosX = x;
+		shell->cursorPosY = y;
+
 		if (!shell->cursorTracked_)
 		{
 			if (shell->callbacks_.pfnCursorEnter != NULL)
@@ -691,12 +708,12 @@ void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 
 void createInput(WsiShell shell)
 {
-    RAWINPUTDEVICE Rid[1];
-    Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-    Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
-    Rid[0].dwFlags = RIDEV_INPUTSINK;
-    Rid[0].hwndTarget = shell->hwnd_;
-    RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
+	const RAWINPUTDEVICE rid = { HID_USAGE_PAGE_GENERIC, HID_USAGE_GENERIC_MOUSE, RIDEV_INPUTSINK, shell->hwnd_ };
+
+	if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
+	{
+		reportError("Win32: Failed to register raw input device");
+	}
 }
 
 VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocationCallbacks* pAllocator, WsiShell *pShell)
@@ -764,6 +781,14 @@ VkResult wsiCreateSurface(WsiShell shell, VkInstance instance, const VkAllocatio
 
 VkResult wsiCmdPollEvents(WsiShell shell)
 {
+	RECT area;
+	GetClientRect(shell->hwnd_, &area);
+
+	if (shell->cursorDisabled_)
+	{
+		SetCursorPos(area.right / 2, area.bottom / 2);
+	}
+
 	MSG msg;
 
 	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
@@ -845,7 +870,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 
 	if (mode == WSI_CURSOR_MODE_DISABLED)
 	{
-    	const RAWINPUTDEVICE rid = { 0x01, 0x02, 0, shell->hwnd_ };
+    	const RAWINPUTDEVICE rid = { HID_USAGE_PAGE_GENERIC, HID_USAGE_GENERIC_MOUSE, 0, shell->hwnd_ };
 
 		shell->cursorDisabled_ = TRUE;
 		updateCursorImage(shell);
@@ -858,7 +883,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 	}
 	else
 	{
-    	const RAWINPUTDEVICE rid = { 0x01, 0x02, RIDEV_REMOVE, NULL };
+    	const RAWINPUTDEVICE rid = { HID_USAGE_PAGE_GENERIC, HID_USAGE_GENERIC_MOUSE, RIDEV_REMOVE, NULL };
 
 		shell->cursorDisabled_ = FALSE;
 		updateCursorClip(NULL);

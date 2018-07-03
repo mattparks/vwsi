@@ -100,7 +100,7 @@ void CallbackClose(WsiShell shell)
 	m_closed = true;
 }
 
-void CallbackCursorPosition(WsiShell shell, uint32_t x, uint32_t y)
+void CallbackCursorPosition(WsiShell shell, uint32_t x, uint32_t y, float dx, float dy)
 {
 }
 
