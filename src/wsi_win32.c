@@ -12,10 +12,10 @@
 #define WM_MOUSEHWHEEL 0x020E
 #endif
 #ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+#define HID_USAGE_PAGE_GENERIC ((USHORT) 0x01)
 #endif
 #ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#define HID_USAGE_GENERIC_MOUSE ((USHORT) 0x02)
 #endif
 
 typedef struct WsiMonitor_T
@@ -44,153 +44,44 @@ typedef struct WsiShell_T
 	// Mouse input.
 	RAWINPUT *rawInput_;
 	int rawInputSize_;
-
-	// Keyboard input.
-	short int keycodes_[512];
-	short int scancodes_[WSI_KEY_MAX_ENUM];
 } WsiShell_T;
+
+const WsiKey WIN32_TO_WSI_KEY[512] = {
+	0, WSI_KEY_ESCAPE, WSI_KEY_1, WSI_KEY_2, WSI_KEY_3, WSI_KEY_4, WSI_KEY_5, WSI_KEY_6, WSI_KEY_7,
+	WSI_KEY_8, WSI_KEY_9, WSI_KEY_0, WSI_KEY_MINUS, WSI_KEY_EQUAL, WSI_KEY_BACKSPACE, WSI_KEY_TAB,
+	WSI_KEY_Q, WSI_KEY_W, WSI_KEY_E, WSI_KEY_R, WSI_KEY_T, WSI_KEY_Y, WSI_KEY_U, WSI_KEY_I, WSI_KEY_O,
+	WSI_KEY_P, WSI_KEY_LEFT_BRACKET, WSI_KEY_RIGHT_BRACKET, WSI_KEY_ENTER, WSI_KEY_LEFT_CONTROL,
+	WSI_KEY_A, WSI_KEY_S, WSI_KEY_D, WSI_KEY_F, WSI_KEY_G, WSI_KEY_H, WSI_KEY_J, WSI_KEY_K, WSI_KEY_L,
+	WSI_KEY_SEMICOLON, WSI_KEY_APOSTROPHE, WSI_KEY_GRAVE_ACCENT, WSI_KEY_LEFT_SHIFT, WSI_KEY_BACKSLASH,
+	WSI_KEY_Z, WSI_KEY_X, WSI_KEY_C, WSI_KEY_V, WSI_KEY_B, WSI_KEY_N, WSI_KEY_M, WSI_KEY_COMMA,
+	WSI_KEY_PERIOD, WSI_KEY_SLASH, WSI_KEY_RIGHT_SHIFT, WSI_KEY_PAD_MULTIPLY, WSI_KEY_LEFT_ALT,
+	WSI_KEY_SPACE, WSI_KEY_CAPS_LOCK, WSI_KEY_F1, WSI_KEY_F2, WSI_KEY_F3, WSI_KEY_F4, WSI_KEY_F5,
+	WSI_KEY_F6, WSI_KEY_F7, WSI_KEY_F8, WSI_KEY_F9, WSI_KEY_F10, WSI_KEY_PAUSE, WSI_KEY_SCROLL_LOCK,
+	WSI_KEY_PAD_7, WSI_KEY_PAD_8, WSI_KEY_PAD_9, WSI_KEY_PAD_SUBTRACT, WSI_KEY_PAD_4, WSI_KEY_PAD_5,
+	WSI_KEY_PAD_6, WSI_KEY_PAD_ADD, WSI_KEY_PAD_1, WSI_KEY_PAD_2, WSI_KEY_PAD_3, WSI_KEY_PAD_0,
+	WSI_KEY_PAD_DECIMAL, 0, 0, WSI_KEY_WORLD_2, WSI_KEY_F11, WSI_KEY_F12, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, WSI_KEY_F13, WSI_KEY_F14, WSI_KEY_F15, WSI_KEY_F16, WSI_KEY_F17, WSI_KEY_F18, WSI_KEY_F19,
+	WSI_KEY_F20, WSI_KEY_F21, WSI_KEY_F22, WSI_KEY_F23, 0, 0, 0, 0, 0, 0, 0, WSI_KEY_F24, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WSI_KEY_PAD_ENTER,
+	WSI_KEY_RIGHT_CONTROL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	WSI_KEY_PAD_DIVIDE, 0, WSI_KEY_PRINT_SCREEN, WSI_KEY_RIGHT_ALT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	WSI_KEY_NUM_LOCK, WSI_KEY_PAUSE, WSI_KEY_HOME, WSI_KEY_UP, WSI_KEY_PAGE_UP, 0, WSI_KEY_LEFT, 0,
+	WSI_KEY_RIGHT, 0, WSI_KEY_END, WSI_KEY_DOWN, WSI_KEY_PAGE_DOWN, WSI_KEY_INSERT, WSI_KEY_DELETE, 0,
+	0, 0, 0, 0, 0, 0, WSI_KEY_LEFT_SUPER, WSI_KEY_RIGHT_SUPER, WSI_KEY_MENU, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 
 void reportError(const char *message)
 {
 	printf("VWSI Error: %s\n", message);
-}
-
-void createKeyTables(WsiShell shell)
-{
-	int scancode;
-
-    memset(shell->keycodes_, -1, sizeof(shell->keycodes_));
-    memset(shell->scancodes_, -1, sizeof(shell->scancodes_));
-
-    shell->keycodes_[0x00B] = WSI_KEY_0;
-    shell->keycodes_[0x002] = WSI_KEY_1;
-    shell->keycodes_[0x003] = WSI_KEY_2;
-    shell->keycodes_[0x004] = WSI_KEY_3;
-    shell->keycodes_[0x005] = WSI_KEY_4;
-    shell->keycodes_[0x006] = WSI_KEY_5;
-    shell->keycodes_[0x007] = WSI_KEY_6;
-    shell->keycodes_[0x008] = WSI_KEY_7;
-    shell->keycodes_[0x009] = WSI_KEY_8;
-    shell->keycodes_[0x00A] = WSI_KEY_9;
-    shell->keycodes_[0x01E] = WSI_KEY_A;
-    shell->keycodes_[0x030] = WSI_KEY_B;
-    shell->keycodes_[0x02E] = WSI_KEY_C;
-    shell->keycodes_[0x020] = WSI_KEY_D;
-    shell->keycodes_[0x012] = WSI_KEY_E;
-    shell->keycodes_[0x021] = WSI_KEY_F;
-    shell->keycodes_[0x022] = WSI_KEY_G;
-    shell->keycodes_[0x023] = WSI_KEY_H;
-    shell->keycodes_[0x017] = WSI_KEY_I;
-    shell->keycodes_[0x024] = WSI_KEY_J;
-    shell->keycodes_[0x025] = WSI_KEY_K;
-    shell->keycodes_[0x026] = WSI_KEY_L;
-    shell->keycodes_[0x032] = WSI_KEY_M;
-    shell->keycodes_[0x031] = WSI_KEY_N;
-    shell->keycodes_[0x018] = WSI_KEY_O;
-    shell->keycodes_[0x019] = WSI_KEY_P;
-    shell->keycodes_[0x010] = WSI_KEY_Q;
-    shell->keycodes_[0x013] = WSI_KEY_R;
-    shell->keycodes_[0x01F] = WSI_KEY_S;
-    shell->keycodes_[0x014] = WSI_KEY_T;
-    shell->keycodes_[0x016] = WSI_KEY_U;
-    shell->keycodes_[0x02F] = WSI_KEY_V;
-    shell->keycodes_[0x011] = WSI_KEY_W;
-    shell->keycodes_[0x02D] = WSI_KEY_X;
-    shell->keycodes_[0x015] = WSI_KEY_Y;
-    shell->keycodes_[0x02C] = WSI_KEY_Z;
-
-    shell->keycodes_[0x028] = WSI_KEY_APOSTROPHE;
-    shell->keycodes_[0x02B] = WSI_KEY_BACKSLASH;
-    shell->keycodes_[0x033] = WSI_KEY_COMMA;
-    shell->keycodes_[0x00D] = WSI_KEY_EQUAL;
-    shell->keycodes_[0x029] = WSI_KEY_GRAVE_ACCENT;
-    shell->keycodes_[0x01A] = WSI_KEY_LEFT_BRACKET;
-    shell->keycodes_[0x00C] = WSI_KEY_MINUS;
-    shell->keycodes_[0x034] = WSI_KEY_PERIOD;
-    shell->keycodes_[0x01B] = WSI_KEY_RIGHT_BRACKET;
-    shell->keycodes_[0x027] = WSI_KEY_SEMICOLON;
-    shell->keycodes_[0x035] = WSI_KEY_SLASH;
-    shell->keycodes_[0x056] = WSI_KEY_WORLD_2;
-
-    shell->keycodes_[0x00E] = WSI_KEY_BACKSPACE;
-    shell->keycodes_[0x153] = WSI_KEY_DELETE;
-    shell->keycodes_[0x14F] = WSI_KEY_END;
-    shell->keycodes_[0x01C] = WSI_KEY_ENTER;
-    shell->keycodes_[0x001] = WSI_KEY_ESCAPE;
-    shell->keycodes_[0x147] = WSI_KEY_HOME;
-    shell->keycodes_[0x152] = WSI_KEY_INSERT;
-    shell->keycodes_[0x15D] = WSI_KEY_MENU;
-    shell->keycodes_[0x151] = WSI_KEY_PAGE_DOWN;
-    shell->keycodes_[0x149] = WSI_KEY_PAGE_UP;
-    shell->keycodes_[0x045] = WSI_KEY_PAUSE;
-    shell->keycodes_[0x146] = WSI_KEY_PAUSE;
-    shell->keycodes_[0x039] = WSI_KEY_SPACE;
-    shell->keycodes_[0x00F] = WSI_KEY_TAB;
-    shell->keycodes_[0x03A] = WSI_KEY_CAPS_LOCK;
-    shell->keycodes_[0x145] = WSI_KEY_NUM_LOCK;
-    shell->keycodes_[0x046] = WSI_KEY_SCROLL_LOCK;
-    shell->keycodes_[0x03B] = WSI_KEY_F1;
-    shell->keycodes_[0x03C] = WSI_KEY_F2;
-    shell->keycodes_[0x03D] = WSI_KEY_F3;
-    shell->keycodes_[0x03E] = WSI_KEY_F4;
-    shell->keycodes_[0x03F] = WSI_KEY_F5;
-    shell->keycodes_[0x040] = WSI_KEY_F6;
-    shell->keycodes_[0x041] = WSI_KEY_F7;
-    shell->keycodes_[0x042] = WSI_KEY_F8;
-    shell->keycodes_[0x043] = WSI_KEY_F9;
-    shell->keycodes_[0x044] = WSI_KEY_F10;
-    shell->keycodes_[0x057] = WSI_KEY_F11;
-    shell->keycodes_[0x058] = WSI_KEY_F12;
-    shell->keycodes_[0x064] = WSI_KEY_F13;
-    shell->keycodes_[0x065] = WSI_KEY_F14;
-    shell->keycodes_[0x066] = WSI_KEY_F15;
-    shell->keycodes_[0x067] = WSI_KEY_F16;
-    shell->keycodes_[0x068] = WSI_KEY_F17;
-    shell->keycodes_[0x069] = WSI_KEY_F18;
-    shell->keycodes_[0x06A] = WSI_KEY_F19;
-    shell->keycodes_[0x06B] = WSI_KEY_F20;
-    shell->keycodes_[0x06C] = WSI_KEY_F21;
-    shell->keycodes_[0x06D] = WSI_KEY_F22;
-    shell->keycodes_[0x06E] = WSI_KEY_F23;
-    shell->keycodes_[0x076] = WSI_KEY_F24;
-    shell->keycodes_[0x038] = WSI_KEY_LEFT_ALT;
-    shell->keycodes_[0x01D] = WSI_KEY_LEFT_CONTROL;
-    shell->keycodes_[0x02A] = WSI_KEY_LEFT_SHIFT;
-    shell->keycodes_[0x15B] = WSI_KEY_LEFT_SUPER;
-    shell->keycodes_[0x137] = WSI_KEY_PRINT_SCREEN;
-    shell->keycodes_[0x138] = WSI_KEY_RIGHT_ALT;
-    shell->keycodes_[0x11D] = WSI_KEY_RIGHT_CONTROL;
-    shell->keycodes_[0x036] = WSI_KEY_RIGHT_SHIFT;
-    shell->keycodes_[0x15C] = WSI_KEY_RIGHT_SUPER;
-    shell->keycodes_[0x150] = WSI_KEY_DOWN;
-    shell->keycodes_[0x14B] = WSI_KEY_LEFT;
-    shell->keycodes_[0x14D] = WSI_KEY_RIGHT;
-    shell->keycodes_[0x148] = WSI_KEY_UP;
-
-    shell->keycodes_[0x052] = WSI_KEY_PAD_0;
-    shell->keycodes_[0x04F] = WSI_KEY_PAD_1;
-    shell->keycodes_[0x050] = WSI_KEY_PAD_2;
-    shell->keycodes_[0x051] = WSI_KEY_PAD_3;
-    shell->keycodes_[0x04B] = WSI_KEY_PAD_4;
-    shell->keycodes_[0x04C] = WSI_KEY_PAD_5;
-    shell->keycodes_[0x04D] = WSI_KEY_PAD_6;
-    shell->keycodes_[0x047] = WSI_KEY_PAD_7;
-    shell->keycodes_[0x048] = WSI_KEY_PAD_8;
-    shell->keycodes_[0x049] = WSI_KEY_PAD_9;
-    shell->keycodes_[0x04E] = WSI_KEY_PAD_ADD;
-    shell->keycodes_[0x053] = WSI_KEY_PAD_DECIMAL;
-    shell->keycodes_[0x135] = WSI_KEY_PAD_DIVIDE;
-    shell->keycodes_[0x11C] = WSI_KEY_PAD_ENTER;
-    shell->keycodes_[0x037] = WSI_KEY_PAD_MULTIPLY;
-    shell->keycodes_[0x04A] = WSI_KEY_PAD_SUBTRACT;
-
-    for (scancode = 0; scancode < 512; scancode++)
-    {
-        if (shell->keycodes_[scancode] > 0)
-        {
-			shell->scancodes_[shell->keycodes_[scancode]] = scancode;
-        }
-    }
 }
 
 WsiKey translateKey(WsiShell shell, WPARAM wParam, LPARAM lParam)
@@ -236,7 +127,7 @@ WsiKey translateKey(WsiShell shell, WPARAM wParam, LPARAM lParam)
         return WSI_KEY_UNKNOWN;
     }
 
-    return shell->keycodes_[HIWORD(lParam) & 0x1FF];
+    return WIN32_TO_WSI_KEY[HIWORD(lParam) & 0x1FF];
 }
 
 WsiModifierFlags getKeyMods(void)
@@ -244,34 +135,17 @@ WsiModifierFlags getKeyMods(void)
 	WsiModifierFlags mods = 0;
 
 	if (GetKeyState(VK_SHIFT) & 0x8000)
-	{
 		mods |= WSI_MODIFIER_SHIFT_BIT;
-	}
-
 	if (GetKeyState(VK_CONTROL) & 0x8000)
-	{
 		mods |= WSI_MODIFIER_CONTROL_BIT;
-	}
-
 	if (GetKeyState(VK_MENU) & 0x8000)
-	{
 		mods |= WSI_MODIFIER_ALT_BIT;
-	}
-
 	if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000)
-	{
 		mods |= WSI_MODIFIER_SUPER_BIT;
-	}
-
 	if (GetKeyState(VK_CAPITAL) & 1)
-	{
 		mods |= WSI_MODIFIER_CAPS_LOCK_BIT;
-	}
-
 	if (GetKeyState(VK_NUMLOCK) & 1)
-	{
 		mods |= WSI_MODIFIER_NUM_LOCK_BIT;
-	}
 
 	return mods;
 }
@@ -357,7 +231,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if (shell->callbacks_.pfnSize != NULL)
 		{
-			shell->callbacks_.pfnSize(shell, w, h, FALSE);
+			shell->callbacks_.pfnSize(shell, w, h, iconified, FALSE);
 		}
 
 		break;
@@ -393,7 +267,6 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		break;
 	}
-	// TODO: Iconify
 	case WM_CLOSE:
 	{
 		if (shell->callbacks_.pfnClose != NULL)
@@ -448,9 +321,8 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			shell->cursorPosX += data->data.mouse.lLastX;
 			shell->cursorPosY += data->data.mouse.lLastY;
-		}
-
 		//	wsiCmdSetCursorPos(shell, shell->cursorPosX, shell->cursorPosY);
+		}
 
 		if (shell->callbacks_.pfnCursorPosition != NULL)
 		{
@@ -559,13 +431,24 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		break;
 	}
+	case WM_CHAR:
+	{
+		static char buf[4] = {};
+		strncpy(buf, (const char*)&wParam, 4);
+
+		if (shell->callbacks_.pfnChar != NULL)
+		{
+			shell->callbacks_.pfnChar(shell, buf);
+		}
+
+		break;
+	}
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 	{
 		WsiKey key = translateKey(shell, wParam, lParam);
-		int scancode = (lParam >> 16) & 0x1ff;
 		WsiAction action = ((lParam >> 31) & 1) ? WSI_ACTION_RELEASE : WSI_ACTION_PRESS;
 		WsiModifierFlags mods = getKeyMods();
 
@@ -579,51 +462,66 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (action == WSI_ACTION_RELEASE && wParam == VK_SHIFT)
 			{
 				// Release both Shift keys on Shift up event
-				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, scancode, action, mods);
-				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, scancode, action, mods);
+				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, action, mods);
+				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, action, mods);
 			}
 			else if (wParam == VK_SNAPSHOT)
 			{
 				// Key down is not reported for the Print Screen key
-				shell->callbacks_.pfnKey(shell, key, scancode, WSI_ACTION_PRESS, mods);
-				shell->callbacks_.pfnKey(shell, key, scancode, WSI_ACTION_RELEASE, mods);
+				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_PRESS, mods);
+				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_RELEASE, mods);
 			}
 			else
 			{
-				shell->callbacks_.pfnKey(shell, key, scancode, action, mods);
+				shell->callbacks_.pfnKey(shell, key, action, mods);
 			}
 		}
 
 		break;
 	}
-    /*case WM_DEVICECHANGE:
-    {
-    	if (wParam == DBT_DEVICEARRIVAL)
-    	{
-            DEV_BROADCAST_HDR *dbh = (DEV_BROADCAST_HDR*) lParam;
+#ifdef ENABLE_MULTITOUCH
+	case WM_POINTERUPDATE:
+	case WM_POINTERDOWN:
+	case WM_POINTERUP:
+	{
+		uint32_t x = GET_X_LPARAM(lParam);
+		uint32_t y = GET_Y_LPARAM(lParam);
+    	WsiAction action;
+		POINTER_INFO pointerInfo;
 
-            if (dbh && dbh->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+        if (GetPointerInfo(GET_POINTERID_WPARAM(wParam), &pointerInfo))
+        {
+            uint32_t id = pointerInfo.pointerId;
+            POINT pt = pointerInfo.ptPixelLocation;
+            ScreenToClient(shell->hwnd_, &pt);
+
+            switch (message)
             {
-				if (shell->callbacks_.pfnJoystickConnect != NULL)
-				{
-					shell->callbacks_.pfnJoystickConnect(shell, WSI_JOYSTICK_1, "test", 10, 10, TRUE);
-				}
-			}
-    	}
-    	else if (wParam == DBT_DEVICEREMOVECOMPLETE)
-    	{
-        	DEV_BROADCAST_HDR *dbh = (DEV_BROADCAST_HDR*) lParam;
+                case WM_POINTERDOWN:
+                {
+                	action = WSI_ACTION_PRESS;
+                	break;
+                }
+                case WM_POINTERUP:
+                {
+                	action = WSI_ACTION_RELEASE;
+                	break;
+                }
+                case WM_POINTERUPDATE:
+                {
+                	action = WSI_ACTION_REPEAT;
+                	break;
+                }
+            }
 
-        	if (dbh && dbh->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
-        	{
-				if (shell->callbacks_.pfnJoystickConnect != NULL)
-				{
-					shell->callbacks_.pfnJoystickConnect(shell, WSI_JOYSTICK_1, "NULL", 0, 0, FALSE);
-				}
-        	}
-    	}
+			if (shell->callbacks_.pfnTouch != NULL)
+			{
+				shell->callbacks_.pfnTouch(shell, id, x, y, action);
+			}
+        }
 		break;
-	}*/
+	}
+#endif
 	// TODO: Joystick connect, button, axis
 	}
 
@@ -653,88 +551,90 @@ void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *pMonitorP
 
 HICON createIcon(WsiImage image, int xhot, int yhot, VkBool32 icon)
 {
-    int i;
-    HDC dc;
-    HICON handle;
-    HBITMAP color, mask;
-    BITMAPV5HEADER bi;
-    ICONINFO ii;
-    unsigned char* target = NULL;
-    unsigned char* source = image.pixels;
+	if (image.pixels == NULL)
+	{
+		return NULL;
+	}
 
-    ZeroMemory(&bi, sizeof(bi));
-    bi.bV5Size        = sizeof(bi);
-    bi.bV5Width       = image.width;
-    bi.bV5Height      = -image.height;
-    bi.bV5Planes      = 1;
-    bi.bV5BitCount    = 32;
-    bi.bV5Compression = BI_BITFIELDS;
-    bi.bV5RedMask     = 0x00ff0000;
-    bi.bV5GreenMask   = 0x0000ff00;
-    bi.bV5BlueMask    = 0x000000ff;
-    bi.bV5AlphaMask   = 0xff000000;
+	int i;
+	HDC dc;
+	HICON handle;
+	HBITMAP color, mask;
+	BITMAPV5HEADER bi;
+	ICONINFO ii;
+	unsigned char *target = NULL;
+	unsigned char *source = image.pixels;
 
-    dc = GetDC(NULL);
-    color = CreateDIBSection(dc,
-                             (BITMAPINFO*) &bi,
-                             DIB_RGB_COLORS,
-                             (void**) &target,
-                             NULL,
-                             (DWORD) 0);
-    ReleaseDC(NULL, dc);
+	ZeroMemory(&bi, sizeof(bi));
+	bi.bV5Size = sizeof(bi);
+	bi.bV5Width = image.width;
+	bi.bV5Height = -image.height;
+	bi.bV5Planes = 1;
+	bi.bV5BitCount = 32;
+	bi.bV5Compression = BI_BITFIELDS;
+	bi.bV5RedMask = 0x00ff0000;
+	bi.bV5GreenMask = 0x0000ff00;
+	bi.bV5BlueMask = 0x000000ff;
+	bi.bV5AlphaMask = 0xff000000;
 
-    if (!color)
-    {
-        reportError("Win32: Failed to create RGBA bitmap");
-        return NULL;
-    }
+	dc = GetDC(NULL);
+	color = CreateDIBSection(dc, (BITMAPINFO *) &bi, DIB_RGB_COLORS,
+		(void **) &target, NULL, (DWORD) 0);
+	ReleaseDC(NULL, dc);
 
-    mask = CreateBitmap(image.width, image.height, 1, 1, NULL);
-    if (!mask)
-    {
-        reportError("Win32: Failed to create mask bitmap");
-        DeleteObject(color);
-        return NULL;
-    }
+	if (!color)
+	{
+		reportError("Win32: Failed to create RGBA bitmap");
+		return NULL;
+	}
 
-    for (i = 0;  i < image.width * image.height;  i++)
-    {
-        target[0] = source[2];
-        target[1] = source[1];
-        target[2] = source[0];
-        target[3] = source[3];
-        target += 4;
-        source += 4;
-    }
+	mask = CreateBitmap(image.width, image.height, 1, 1, NULL);
 
-    ZeroMemory(&ii, sizeof(ii));
-    ii.fIcon    = icon;
-    ii.xHotspot = xhot;
-    ii.yHotspot = yhot;
-    ii.hbmMask  = mask;
-    ii.hbmColor = color;
+	if (!mask)
+	{
+		reportError("Win32: Failed to create mask bitmap");
+		DeleteObject(color);
+		return NULL;
+	}
 
-    handle = CreateIconIndirect(&ii);
+	for (i = 0; i < image.width * image.height; i++)
+	{
+		target[0] = source[2];
+		target[1] = source[1];
+		target[2] = source[0];
+		target[3] = source[3];
+		target += 4;
+		source += 4;
+	}
 
-    DeleteObject(color);
-    DeleteObject(mask);
+	ZeroMemory(&ii, sizeof(ii));
+	ii.fIcon = icon;
+	ii.xHotspot = xhot;
+	ii.yHotspot = yhot;
+	ii.hbmMask = mask;
+	ii.hbmColor = color;
 
-    if (!handle)
-    {
-        if (icon)
-        {
+	handle = CreateIconIndirect(&ii);
+
+	DeleteObject(color);
+	DeleteObject(mask);
+
+	if (!handle)
+	{
+		if (icon)
+		{
 			reportError("Win32: Failed to create icon");
-        }
-        else
-        {
+		}
+		else
+		{
 			reportError("Win32: Failed to create cursor");
-        }
-    }
+		}
+	}
 
-    return handle;
+	return handle;
 }
 
-void load_vk(WsiShell shell)
+void loadVk(WsiShell shell)
 {
 	const char filename[] = "vulkan-1.dll";
 	shell->hmodule_ = LoadLibrary(filename);
@@ -751,7 +651,7 @@ void load_vk(WsiShell shell)
 	}
 }
 
-void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
+void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 {
 	shell->hinstance_ = GetModuleHandle(NULL);
 
@@ -789,7 +689,7 @@ void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
 	SetWindowLongPtr(shell->hwnd_, GWLP_USERDATA, (LONG_PTR) shell);
 }
 
-void create_input(WsiShell shell)
+void createInput(WsiShell shell)
 {
     RAWINPUTDEVICE Rid[1];
     Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
@@ -812,10 +712,9 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocatio
 	memset(shell, 0, sizeof(shell));
 	shell->callbacks_ = *pCreateInfo->pCallbacks;
 
-	createKeyTables(shell);
-	load_vk(shell);
-	create_window(shell, *pCreateInfo);
-	create_input(shell);
+	loadVk(shell);
+	createWindow(shell, *pCreateInfo);
+	createInput(shell);
 
 	*pShell = shell;
 	return VK_SUCCESS;
@@ -875,12 +774,6 @@ VkResult wsiCmdPollEvents(WsiShell shell)
 			{
 				shell->callbacks_.pfnClose(shell);
 			}
-
-		if (shell->callbacks_.pfnIconify != NULL)
-		{
-			printf("icn\n");
-			shell->callbacks_.pfnIconify(shell, IsIconic(shell->hwnd_));
-		}
 
 			return VK_SUCCESS;
 		}
@@ -980,7 +873,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 	return VK_SUCCESS;
 }
 
-VkResult wsiCmdSetCursorPos(WsiShell shell, float x, float y)
+VkResult wsiCmdSetCursorPos(WsiShell shell, uint32_t x, uint32_t y)
 {
 	SetCursorPos(x, y);
 	return VK_SUCCESS;

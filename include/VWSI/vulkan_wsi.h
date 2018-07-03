@@ -257,23 +257,20 @@ typedef void (VKAPI_PTR *PFN_vkSizeCallback)(
     WsiShell                                        shell,
     uint32_t                                        width,
     uint32_t                                        height,
+    VkBool32                                        iconified,
     VkBool32                                        fullscreen);
 
 typedef void (VKAPI_PTR *PFN_vkFocusCallback)(
     WsiShell                                        shell,
     VkBool32                                        focused);
 
-typedef void (VKAPI_PTR *PFN_vkIconifyCallback)(
-    WsiShell                                        shell,
-    VkBool32                                        iconified);
-
 typedef void (VKAPI_PTR *PFN_vkCloseCallback)(
     WsiShell                                        shell);
 
 typedef void (VKAPI_PTR *PFN_vkCursorPositionCallback)(
     WsiShell                                        shell,
-    float                                           x,
-    float                                           y);
+    uint32_t                                        x,
+    uint32_t                                        y);
 
 typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
     WsiShell                                        shell,
@@ -281,25 +278,29 @@ typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorScrollCallback)(
     WsiShell                                        shell,
-    float                                           x,
-    float                                           y);
+    int32_t                                         x,
+    int32_t                                         y);
 
 typedef void (VKAPI_PTR *PFN_vkMouseButtonCallback)(
     WsiShell                                        shell,
     WsiMouseButton                                  mouseButton,
     WsiAction                                       action);
 
+typedef void (VKAPI_PTR *PFN_vkCharCallback)(
+    WsiShell                                        shell,
+    const char*                                     str);
+
 typedef void (VKAPI_PTR *PFN_vkKeyCallback)(
     WsiShell                                        shell,
     WsiKey                                          key,
-    int                                             scancode,
     WsiAction                                       action,
     WsiModifierFlags                                modFlags);
 
 typedef void (VKAPI_PTR *PFN_vkTouchCallback)(
     WsiShell                                        shell,
-    float                                           x,
-    float                                           y,
+    uint32_t                                        id,
+    uint32_t                                        x,
+    uint32_t                                        y,
     WsiAction                                       action);
 
 typedef void (VKAPI_PTR *PFN_vkJoystickConnectCallback)(
@@ -326,12 +327,12 @@ typedef struct WsiShellCallbacks {
     PFN_vkPositionCallback           pfnPosition;
     PFN_vkSizeCallback               pfnSize;
     PFN_vkFocusCallback              pfnFocus;
-    PFN_vkIconifyCallback            pfnIconify;
     PFN_vkCloseCallback              pfnClose;
     PFN_vkCursorPositionCallback     pfnCursorPosition;
     PFN_vkCursorEnterCallback        pfnCursorEnter;
     PFN_vkCursorScrollCallback       pfnCursorScroll;
     PFN_vkMouseButtonCallback        pfnMouseButton;
+    PFN_vkCharCallback               pfnChar;
     PFN_vkKeyCallback                pfnKey;
     PFN_vkTouchCallback              pfnTouch;
     PFN_vkJoystickConnectCallback    pfnJoystickConnect;
@@ -376,7 +377,7 @@ typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetName)(WsiShell shell, const char* pNam
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetIcon)(WsiShell shell, WsiImage icon);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursor)(WsiShell shell, WsiImage cursor);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursorMode)(WsiShell shell, WsiCursorMode mode);
-typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursorPos)(WsiShell shell, float x, float y);
+typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursorPos)(WsiShell shell, uint32_t x, uint32_t y);
 
 #ifndef VK_NO_PROTOTYPES
 VKAPI_ATTR VkResult VKAPI_CALL wsiEnumerateMonitors(
@@ -451,8 +452,8 @@ VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursorMode(
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursorPos(
     WsiShell                                    shell,
-    float                                       x,
-    float                                       y);
+    uint32_t                                    x,
+    uint32_t                                    y);
 #endif
 
 #ifdef __cplusplus

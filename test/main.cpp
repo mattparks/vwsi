@@ -82,16 +82,15 @@ void CallbackPosition(WsiShell shell, uint32_t x, uint32_t y)
 {
 }
 
-void CallbackSize(WsiShell shell, uint32_t width, uint32_t height, VkBool32 fullscreen)
+void CallbackSize(WsiShell shell, uint32_t width, uint32_t height, VkBool32 iconified, VkBool32 fullscreen)
 {
-	printf("%ix%i\n", width, height);
+	if (!iconified)
+	{
+		printf("%ix%i\n", width, height);
+	}
 }
 
 void CallbackFocus(WsiShell shell, VkBool32 focused)
-{
-}
-
-void CallbackIconify(WsiShell shell, VkBool32 iconified)
 {
 }
 
@@ -101,7 +100,7 @@ void CallbackClose(WsiShell shell)
 	m_closed = true;
 }
 
-void CallbackCursorPosition(WsiShell shell, float x, float y)
+void CallbackCursorPosition(WsiShell shell, uint32_t x, uint32_t y)
 {
 }
 
@@ -109,11 +108,16 @@ void CallbackCursorEnter(WsiShell shell, VkBool32 entered)
 {
 }
 
-void CallbackCursorScroll(WsiShell shell, float x, float y)
+void CallbackCursorScroll(WsiShell shell, int32_t x, int32_t y)
 {
 }
 
-void CallbackKey(WsiShell shell, WsiKey key, int scancode, WsiAction action, WsiModifierFlags modFlags)
+void CallbackChar(WsiShell shell, const char *str)
+{
+	printf("%s\n", str);
+}
+
+void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, WsiModifierFlags modFlags)
 {
 	printf("%i, %i\n", key, action);
 }
@@ -122,7 +126,7 @@ void CallbackMouseButton(WsiShell shell, WsiMouseButton mouseButton, WsiAction a
 {
 }
 
-void CallbackTouch(WsiShell shell, float x, float y, WsiAction action)
+void CallbackTouch(WsiShell shell, uint32_t id, uint32_t x, uint32_t y, WsiAction action)
 {
 }
 
@@ -136,7 +140,6 @@ void CallbackJoystickButton(WsiShell shell, WsiJoystick port, uint32_t button, W
 
 void CallbackJoystickAxis(WsiShell shell, WsiJoystick port, uint32_t axis, float amount)
 {
-	printf("Hello World!\n");
 }
 
 int main(int argc, char **argv)
@@ -153,11 +156,11 @@ int main(int argc, char **argv)
 	shellCallbacks.pfnPosition = CallbackPosition;
 	shellCallbacks.pfnSize = CallbackSize;
 	shellCallbacks.pfnFocus = CallbackFocus;
-	shellCallbacks.pfnIconify = CallbackIconify;
 	shellCallbacks.pfnClose = CallbackClose;
 	shellCallbacks.pfnCursorPosition = CallbackCursorPosition;
 	shellCallbacks.pfnCursorEnter = CallbackCursorEnter;
 	shellCallbacks.pfnCursorScroll = CallbackCursorScroll;
+	shellCallbacks.pfnChar = CallbackChar;
 	shellCallbacks.pfnKey = CallbackKey;
 	shellCallbacks.pfnMouseButton = CallbackMouseButton;
 	shellCallbacks.pfnTouch = CallbackTouch;

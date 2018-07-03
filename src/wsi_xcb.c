@@ -89,7 +89,7 @@ void wsiGetMonitorProperties(WsiMonitor monitor, WsiMonitorProperties *pMonitorP
 {
 }
 
-void init_connection(WsiShell shell)
+void initConnection(WsiShell shell)
 {
 	int scr;
 
@@ -112,7 +112,7 @@ void init_connection(WsiShell shell)
 	shell->screen_ = iter.data;
 }
 
-void load_vk(WsiShell shell)
+void loadVk(WsiShell shell)
 {
 	const char filename[] = "libvulkan.so.1";
 	void *handle, *symbol;
@@ -145,7 +145,7 @@ void load_vk(WsiShell shell)
 	shell->lib_handle_ = handle;
 }
 
-void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
+void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 {
 	shell->window_ = xcb_generate_id(shell->connection_);
 
@@ -174,7 +174,7 @@ void create_window(WsiShell shell, WsiShellCreateInfo createInfo)
 	xcb_change_property(shell->connection_, XCB_PROP_MODE_REPLACE, shell->window_, shell->wm_protocols_, XCB_ATOM_ATOM, 32, 1, &shell->wm_delete_window_);
 }
 
-VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
+VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, const VkAllocationCallbacks* pAllocator, WsiShell *pShell)
 {
 	if (pCreateInfo == NULL)
 	{
@@ -187,15 +187,15 @@ VkResult wsiCreateShell(const WsiShellCreateInfo *pCreateInfo, WsiShell *pShell)
 	memset(shell, 0, sizeof(shell));
 	shell->callbacks_ = *pCreateInfo->pCallbacks;
 
-	init_connection(shell);
-	load_vk(shell);
-	create_window(shell, *pCreateInfo);
+	initConnection(shell);
+	loadVk(shell);
+	createWindow(shell, *pCreateInfo);
 
 	*pShell = shell;
 	return VK_SUCCESS;
 }
 
-void wsiDestroyShell(WsiShell shell)
+void wsiDestroyShell(WsiShell shell, const VkAllocationCallbacks* pAllocator)
 {
 	xcb_destroy_window(shell->connection_, shell->window_);
 	xcb_flush(shell->connection_);
@@ -290,7 +290,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 	return VK_SUCCESS;
 }
 
-VkResult wsiCmdSetCursorPos(WsiShell shell, float x, float y)
+VkResult wsiCmdSetCursorPos(WsiShell shell, uint32_t x, uint32_t y)
 {
 	return VK_SUCCESS;
 }

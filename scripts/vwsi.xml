@@ -66,30 +66,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     <type>WsiShell</type>                                        shell,
     <type>uint32_t</type>                                        width,
     <type>uint32_t</type>                                        height,
+    <type>VkBool32</type>                                        iconified,
     <type>VkBool32</type>                                        fullscreen);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkFocusCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>VkBool32</type>                                        focused);</type>
-        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkIconifyCallback</name>)(
-    <type>WsiShell</type>                                        shell,
-    <type>VkBool32</type>                                        iconified);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCloseCallback</name>)(
     <type>WsiShell</type>                                        shell);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>                                           x,
-    <type>float</type>                                           y);</type>
+    <type>uint32_t</type>                                        x,
+    <type>uint32_t</type>                                        y);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>VkBool32</type>                                        entered);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorScrollCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>                                           x,
-    <type>float</type>                                           y);</type>
+    <type>int32_t</type>                                         x,
+    <type>int32_t</type>                                         y);</type>
+        <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCharCallback</name>)(
+    <type>WsiShell</type>                                        shell,
+    const <type>char</type>*                                     str);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkKeyCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>WsiKey</type>                                          key,
-    <type>int </type>                                            scancode,
     <type>WsiAction</type>                                       action,
     <type>WsiModifierFlags</type>                                modFlags);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkMouseButtonCallback</name>)(
@@ -98,8 +98,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkTouchCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>                                           x,
-    <type>float</type>                                           y,
+    <type>uint32_t</type>                                        id,
+    <type>uint32_t</type>                                        x,
+    <type>uint32_t</type>                                        y,
     <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickConnectCallback</name>)(
     <type>WsiShell</type>                                        shell,
@@ -133,12 +134,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <member><type>PFN_vkPositionCallback</type>   <name>pfnPosition</name></member>
             <member><type>PFN_vkSizeCallback</type>   <name>pfnSize</name></member>
             <member><type>PFN_vkFocusCallback</type>   <name>pfnFocus</name></member>
-            <member><type>PFN_vkIconifyCallback</type>   <name>pfnIconify</name></member>
             <member><type>PFN_vkCloseCallback</type>   <name>pfnClose</name></member>
             <member><type>PFN_vkCursorPositionCallback</type>   <name>pfnCursorPosition</name></member>
             <member><type>PFN_vkCursorEnterCallback</type>   <name>pfnCursorEnter</name></member>
             <member><type>PFN_vkCursorScrollCallback</type>   <name>pfnCursorScroll</name></member>
             <member><type>PFN_vkMouseButtonCallback</type>   <name>pfnMouseButton</name></member>
+            <member><type>PFN_vkCharCallback</type>   <name>pfnChar</name></member>
             <member><type>PFN_vkKeyCallback</type>   <name>pfnKey</name></member>
             <member><type>PFN_vkTouchCallback</type>   <name>pfnTouch</name></member>
             <member><type>PFN_vkJoystickConnectCallback</type>   <name>pfnJoystickConnect</name></member>
@@ -428,8 +429,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
             <proto><type>VkResult</type> <name>wsiCmdSetCursorPos</name></proto>
             <param><type>WsiShell</type> <name>shell</name></param>
-            <param><type>float</type> <name>x</name></param>
-            <param><type>float</type> <name>y</name></param>
+            <param><type>uint32_t</type> <name>x</name></param>
+            <param><type>uint32_t</type> <name>y</name></param>
         </command>
     </commands>
 
