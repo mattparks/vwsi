@@ -113,7 +113,7 @@ void CallbackCursorScroll(WsiShell shell, float x, float y)
 {
 }
 
-void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, int mods)
+void CallbackKey(WsiShell shell, WsiKey key, int scancode, WsiAction action, WsiModifierFlags modFlags)
 {
 	printf("%i, %i\n", key, action);
 }

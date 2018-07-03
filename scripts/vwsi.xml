@@ -36,10 +36,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     </platforms>
 
     <tags comment="Vulkan WSI vendor/author tags for extensions and layers">
-	</tags>
+    </tags>
 
     <types comment="Vulkan WSI type definitions">
-        <type category="include" name="vulkan/vulkan.h"/>
+        <type name="vulkanh" category="include">#include "vulkan/vulkan.h"</type>
+
+            <comment>Bitmask types</comment>
+        <type requires="WsiModifierFlagBits"             category="bitmask">typedef <type>VkFlags</type> <name>WsiModifierFlags</name>;</type>
 
             <comment>Types which can be void pointers or class pointers, selected at compile time</comment>
         <type category="handle"><type>VK_DEFINE_HANDLE</type>(<name>WsiMonitor</name>)</type>
@@ -50,70 +53,71 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <type name="WsiMouseButton" category="enum"/>
         <type name="WsiJoystick" category="enum"/>
         <type name="WsiAction" category="enum"/>
-        <type name="WsiModifier" category="enum"/>
+        <type name="WsiModifierFlagBits" category="enum"/>
         <type name="WsiCursorMode" category="enum"/>
         <type name="WsiStructureType" category="enum"/>
 
             <comment>The PFN_vk*Callback types are used by WsiShellCallbacks below</comment>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>uint32_t</type>   									 x,
-    <type>uint32_t</type>   									 y);</type>
+    <type>uint32_t</type>                                        x,
+    <type>uint32_t</type>                                        y);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkSizeCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>uint32_t</type>   									 width,
-    <type>uint32_t</type>   									 height,
-    <type>VkBool32</type>   									 fullscreen);</type>
+    <type>uint32_t</type>                                        width,
+    <type>uint32_t</type>                                        height,
+    <type>VkBool32</type>                                        fullscreen);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkFocusCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>VkBool32</type>   									 focused);</type>
+    <type>VkBool32</type>                                        focused);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkIconifyCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>VkBool32</type>   									 iconified);</type>
+    <type>VkBool32</type>                                        iconified);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCloseCallback</name>)(
     <type>WsiShell</type>                                        shell);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>   									 	 x,
-    <type>float</type>   									 	 y);</type>
+    <type>float</type>                                           x,
+    <type>float</type>                                           y);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>VkBool32</type>   									 entered);</type>
+    <type>VkBool32</type>                                        entered);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorScrollCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>   									 	 x,
-    <type>float</type>   									 	 y);</type>
+    <type>float</type>                                           x,
+    <type>float</type>                                           y);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkKeyCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>WsiKey</type>   									 	 key,
-    <type>WsiAction</type>   									 action,
-    <type>int</type>               								 mods);</type>
+    <type>WsiKey</type>                                          key,
+    <type>int </type>                                            scancode,
+    <type>WsiAction</type>                                       action,
+    <type>WsiModifierFlags</type>                                modFlags);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkMouseButtonCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>WsiMouseButton</type>   								 mouseButton,
-    <type>WsiAction</type>   									 action);</type>
+    <type>WsiMouseButton</type>                                  mouseButton,
+    <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkTouchCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>float</type>   										 x,
-    <type>float</type>   										 y,
-    <type>WsiAction</type>   									 action);</type>
+    <type>float</type>                                           x,
+    <type>float</type>                                           y,
+    <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickConnectCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>WsiJoystick</type>   									 port,
-    const <type>char</type>*   									 pName,
-    <type>uint32_t</type>   									 buttonCount,
-    <type>uint32_t</type>   									 axesCount,
-    <type>VkBool32</type>   									 connected);</type>
+    <type>WsiJoystick</type>                                     port,
+    const <type>char</type>*                                     pName,
+    <type>uint32_t</type>                                        buttonCount,
+    <type>uint32_t</type>                                        axesCount,
+    <type>VkBool32</type>                                        connected);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickButtonCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>WsiJoystick</type>   									 port,
-    <type>uint32_t</type>	 									 button,
-    <type>WsiAction</type>   									 action);</type>
+    <type>WsiJoystick</type>                                     port,
+    <type>uint32_t</type>                                        button,
+    <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickAxisCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>WsiJoystick</type>   									 port,
-    <type>uint32_t</type>	 									 axis,
-    <type>float</type>   									 	 amount);</type>
+    <type>WsiJoystick</type>                                     port,
+    <type>uint32_t</type>                                        axis,
+    <type>float</type>                                           amount);</type>
 
             <comment>Struct types</comment>
         <type category="struct" name="WsiImage">
@@ -130,7 +134,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <member><type>PFN_vkSizeCallback</type>   <name>pfnSize</name></member>
             <member><type>PFN_vkFocusCallback</type>   <name>pfnFocus</name></member>
             <member><type>PFN_vkIconifyCallback</type>   <name>pfnIconify</name></member>
-            <member><type>PFN_vkCloseCallback </type>   <name>pfnClose</name></member>
+            <member><type>PFN_vkCloseCallback</type>   <name>pfnClose</name></member>
             <member><type>PFN_vkCursorPositionCallback</type>   <name>pfnCursorPosition</name></member>
             <member><type>PFN_vkCursorEnterCallback</type>   <name>pfnCursorEnter</name></member>
             <member><type>PFN_vkCursorScrollCallback</type>   <name>pfnCursorScroll</name></member>
@@ -139,22 +143,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <member><type>PFN_vkTouchCallback</type>   <name>pfnTouch</name></member>
             <member><type>PFN_vkJoystickConnectCallback</type>   <name>pfnJoystickConnect</name></member>
             <member><type>PFN_vkJoystickButtonCallback</type>   <name>pfnJoystickButton</name></member>
-            <member><type>PFN_vkJoystickAxisCallback </type>   <name>pfnJoystickAxis</name></member>
+            <member><type>PFN_vkJoystickAxisCallback</type>   <name>pfnJoystickAxis</name></member>
         </type>
         <type category="struct" name="WsiShellCreateInfo">
             <member values="WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO"><type>WsiStructureType</type> <name>sType</name></member>
             <member>const <type>void</type>*     <name>pNext</name></member>
-			<member>const <type>WsiShellCallbacks</type>*     <name>pCallbacks</name></member>
-			<member>const <type>WsiImage</type>*     <name>pIcon</name></member>
-			<member>const <type>WsiImage</type>*     <name>pCursor</name></member>
-			<member><type>uint32_t</type>     <name>width</name></member>
-			<member><type>uint32_t</type>     <name>height</name></member>
-			<member><type>uint32_t</type>     <name>x</name></member>
-			<member><type>uint32_t</type>     <name>y</name></member>
-			<member><type>VkBool32</type>     <name>resizable</name></member>
-			<member>const <type>char</type>*     <name>pName</name></member>
+            <member>const <type>WsiShellCallbacks</type>*     <name>pCallbacks</name></member>
+            <member>const <type>WsiImage</type>*     <name>pIcon</name></member>
+            <member>const <type>WsiImage</type>*     <name>pCursor</name></member>
+            <member><type>uint32_t</type>     <name>width</name></member>
+            <member><type>uint32_t</type>     <name>height</name></member>
+            <member><type>uint32_t</type>     <name>x</name></member>
+            <member><type>uint32_t</type>     <name>y</name></member>
+            <member><type>VkBool32</type>     <name>resizable</name></member>
+            <member>const <type>char</type>*     <name>pName</name></member>
         </type>
-	</types>
+    </types>
 
     <comment>Vulkan WSI enumerant (token) definitions</comment>
 
@@ -280,7 +284,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <enum value="346"     name="WSI_KEY_RIGHT_ALT"/>
         <enum value="347"     name="WSI_KEY_RIGHT_SUPER"/>
         <enum value="348"     name="WSI_KEY_MENU"/>
-	</enums>
+    </enums>
     <enums name="WsiMouseButton" type="enum" comment="Mouse input button enumerant">
         <enum value="0"     name="WSI_MOUSE_BUTTON_1"/>
         <enum value="1"     name="WSI_MOUSE_BUTTON_2"/>
@@ -293,7 +297,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <enum value="0"     name="WSI_MOUSE_BUTTON_LEFT"/>
         <enum value="1"     name="WSI_MOUSE_BUTTON_RIGHT"/>
         <enum value="2"     name="WSI_MOUSE_BUTTON_MIDDLE"/>
-	</enums>
+    </enums>
     <enums name="WsiJoystick" type="enum" comment="Joystick port enumerant">
         <enum value="0"     name="WSI_JOYSTICK_1"/>
         <enum value="1"     name="WSI_JOYSTICK_2"/>
@@ -311,28 +315,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <enum value="13"     name="WSI_JOYSTICK_14"/>
         <enum value="14"     name="WSI_JOYSTICK_15"/>
         <enum value="15"     name="WSI_JOYSTICK_16"/>
-	</enums>
+    </enums>
     <enums name="WsiAction" type="enum" comment="Input action enumerant">
         <enum value="0"     name="WSI_ACTION_PRESS"/>
         <enum value="1"     name="WSI_ACTION_RELEASE"/>
         <enum value="2"     name="WSI_ACTION_REPEAT"/>
-	</enums>
-    <enums name="WsiModifier" type="enum" comment="Action modifier enumerant">
-        <enum value="0"     name="WSI_MODIFIER_SHIFT"/>
-        <enum value="1"     name="WSI_MODIFIER_CONTROL"/>
-        <enum value="2"     name="WSI_MODIFIER_ALT"/>
-        <enum value="3"     name="WSI_MODIFIER_SUPER"/>
-        <enum value="4"     name="WSI_MODIFIER_CAPS_LOCK"/>
-        <enum value="5"     name="WSI_MODIFIER_NUM_LOCK"/>
-	</enums>
+    </enums>
+    <enums name="WsiModifierFlagBits" type="bitmask" comment="Action modifier bitmask enumerant">
+        <enum bitpos="0"     name="WSI_MODIFIER_SHIFT_BIT"/>
+        <enum bitpos="1"     name="WSI_MODIFIER_CONTROL_BIT"/>
+        <enum bitpos="2"     name="WSI_MODIFIER_ALT_BIT"/>
+        <enum bitpos="3"     name="WSI_MODIFIER_SUPER_BIT"/>
+        <enum bitpos="4"     name="WSI_MODIFIER_CAPS_LOCK_BIT"/>
+        <enum bitpos="5"     name="WSI_MODIFIER_NUM_LOCK_BIT"/>
+    </enums>
     <enums name="WsiCursorMode" type="enum" comment="Cursor display enumerant">
         <enum value="0"     name="WSI_CURSOR_MODE_NORMAL"/>
         <enum value="1"     name="WSI_CURSOR_MODE_HIDDEN"/>
         <enum value="2"     name="WSI_CURSOR_MODE_DISABLED"/>
-	</enums>
+    </enums>
     <enums name="WsiStructureType" type="enum" comment="Structure type enumerant">
         <enum value="0"     name="WSI_STRUCTURE_TYPE_SHELL_CREATE_INFO"/>
-	</enums>
+    </enums>
 
     <commands comment="Vulkan command definitions">
         <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
@@ -427,9 +431,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <param><type>float</type> <name>x</name></param>
             <param><type>float</type> <name>y</name></param>
         </command>
-	</commands>
+    </commands>
 
     <feature api="vwsi" name="VWSI_VERSION_1_0" number="1.0" comment="Vulkan WSI API interface definitions">
+        <require comment="Header boilerplate">
+            <type name="vulkanh"/>
+        </require>
         <require comment="Monitor commands">
             <command name="wsiEnumerateMonitors"/>
             <command name="wsiGetMonitorProperties"/>
@@ -455,8 +462,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <command name="wsiCmdSetCursorMode"/>
             <command name="wsiCmdSetCursorPos"/>
         </require>
-	</feature>
+    </feature>
 
     <extensions comment="Vulkan WSI extension interface definitions">
-	</extensions>
+    </extensions>
 </registry>

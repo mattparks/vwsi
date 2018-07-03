@@ -239,38 +239,38 @@ WsiKey translateKey(WsiShell shell, WPARAM wParam, LPARAM lParam)
     return shell->keycodes_[HIWORD(lParam) & 0x1FF];
 }
 
-int getKeyMods(void)
+WsiModifierFlags getKeyMods(void)
 {
-	int mods = 0;
+	WsiModifierFlags mods = 0;
 
 	if (GetKeyState(VK_SHIFT) & 0x8000)
 	{
-		mods |= WSI_MODIFIER_SHIFT;
+		mods |= WSI_MODIFIER_SHIFT_BIT;
 	}
 
 	if (GetKeyState(VK_CONTROL) & 0x8000)
 	{
-		mods |= WSI_MODIFIER_CONTROL;
+		mods |= WSI_MODIFIER_CONTROL_BIT;
 	}
 
 	if (GetKeyState(VK_MENU) & 0x8000)
 	{
-		mods |= WSI_MODIFIER_ALT;
+		mods |= WSI_MODIFIER_ALT_BIT;
 	}
 
 	if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000)
 	{
-		mods |= WSI_MODIFIER_SUPER;
+		mods |= WSI_MODIFIER_SUPER_BIT;
 	}
 
 	if (GetKeyState(VK_CAPITAL) & 1)
 	{
-		mods |= WSI_MODIFIER_CAPS_LOCK;
+		mods |= WSI_MODIFIER_CAPS_LOCK_BIT;
 	}
 
 	if (GetKeyState(VK_NUMLOCK) & 1)
 	{
-		mods |= WSI_MODIFIER_NUM_LOCK;
+		mods |= WSI_MODIFIER_NUM_LOCK_BIT;
 	}
 
 	return mods;
@@ -564,10 +564,10 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 	{
-		const int key = translateKey(shell, wParam, lParam);
-		const int scancode = (lParam >> 16) & 0x1ff;
-		const int action = ((lParam >> 31) & 1) ? WSI_ACTION_RELEASE : WSI_ACTION_PRESS;
-		const int mods = getKeyMods();
+		WsiKey key = translateKey(shell, wParam, lParam);
+		int scancode = (lParam >> 16) & 0x1ff;
+		WsiAction action = ((lParam >> 31) & 1) ? WSI_ACTION_RELEASE : WSI_ACTION_PRESS;
+		WsiModifierFlags mods = getKeyMods();
 
 		if (key == WSI_KEY_UNKNOWN)
 		{
@@ -579,18 +579,18 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (action == WSI_ACTION_RELEASE && wParam == VK_SHIFT)
 			{
 				// Release both Shift keys on Shift up event
-				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, action, mods);
-				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, action, mods);
+				shell->callbacks_.pfnKey(shell, WSI_KEY_LEFT_SHIFT, scancode, action, mods);
+				shell->callbacks_.pfnKey(shell, WSI_KEY_RIGHT_SHIFT, scancode, action, mods);
 			}
 			else if (wParam == VK_SNAPSHOT)
 			{
 				// Key down is not reported for the Print Screen key
-				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_PRESS, mods);
-				shell->callbacks_.pfnKey(shell, key, WSI_ACTION_RELEASE, mods);
+				shell->callbacks_.pfnKey(shell, key, scancode, WSI_ACTION_PRESS, mods);
+				shell->callbacks_.pfnKey(shell, key, scancode, WSI_ACTION_RELEASE, mods);
 			}
 			else
 			{
-				shell->callbacks_.pfnKey(shell, key, action, mods);
+				shell->callbacks_.pfnKey(shell, key, scancode, action, mods);
 			}
 		}
 
