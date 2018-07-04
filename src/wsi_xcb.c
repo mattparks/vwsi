@@ -54,7 +54,7 @@ void handle_event(WsiShell shell, const xcb_generic_event_t *ev)
 
 		if (shell->callbacks_.pfnSize != NULL)
 		{
-			shell->callbacks_.pfnSize(shell, notify->width, notify->height, 0);
+			shell->callbacks_.pfnSize(shell, notify->width, notify->height, 0, 0);
 		}
 	}
 		break;

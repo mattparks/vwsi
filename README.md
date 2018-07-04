@@ -1,11 +1,19 @@
 # VWSI
+
+[![Contribute!](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mattparks/vwsi/issues)
+
 VWSI is a low level Window System Integration (WSI) written in C for Vulkan. 
 
 A WSI platform specific shell manages a window, mouse, keyboard, touch, and joysticks, accessible though callbacks (VWSI does not track-return values, they must be keep in your project). Vulkan WSI shares the same API style as Vulkan even going as far as to use a XML API, therefore it shares a large mount of boilerplate.
 
 Vulkan WSI only provides surface information to Vulkan, device and instance creation is still required. Vulkan WSI is simpler than libraries such as GLFW, therefore some functions are limited.
 
-# Platforms 
+## Builds
+Windows   [![Build status](https://ci.appveyor.com/api/projects/status/4uhakf6tt78wov7o?svg=true)](https://ci.appveyor.com/project/Mattparks/vwsi)
+
+Linux/MacOS   [![Build Status](https://travis-ci.org/Equilibrium-Games/Flounder.svg?branch=master)](https://travis-ci.org/mattparks/vwsi)
+
+# Target Platforms 
 - xlib: X Window System, Xlib client library
 - xlib_xrandr: X Window System, Xlib client library, XRandR extension
 - xcb: X Window System, Xcb client library
