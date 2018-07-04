@@ -449,13 +449,20 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_CHAR:
+	case WM_SYSCHAR:
+	case WM_UNICHAR:
 	{
-		static char buf[4] = {};
-		strncpy(buf, (const char*)&wParam, 4);
+		if (uMsg == WM_UNICHAR && wParam == UNICODE_NOCHAR)
+		{
+			return TRUE;
+		}
+
+		static char charBuf[4];
+		strncpy(charBuf, (const char*)&wParam, 4);
 
 		if (shell->callbacks_.pfnChar != NULL)
 		{
-			shell->callbacks_.pfnChar(shell, buf);
+			shell->callbacks_.pfnChar(shell, charBuf);
 		}
 
 		break;
@@ -672,7 +679,8 @@ void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 {
 	shell->hinstance_ = GetModuleHandle(NULL);
 
-	WNDCLASSEX win_class = {};
+	WNDCLASSEXW win_class;
+	ZeroMemory(&win_class, sizeof(win_class));
 	win_class.cbSize = sizeof(WNDCLASSEX);
 	win_class.style = CS_HREDRAW | CS_VREDRAW;
 	win_class.lpfnWndProc = window_proc;

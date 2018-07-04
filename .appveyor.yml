@@ -15,7 +15,7 @@ configuration:
   - Release
 
 environment:
-  VK_SDK_PATH: "C:\\VulkanSDK\\1.1.77.0\\"
+  VULKAN_SDK: "C:\\VulkanSDK\\1.1.77.0\\"
 
 install:
 # - git submodule update --init --recursive
@@ -33,15 +33,16 @@ install:
 before_build:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
   - cd C:\Projects\vwsi
-  - mkdir Build
-  - cd Build
+  - mkdir build
+  - cd build
   - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DVWSI_INSTALL=ON -DVWSI_BUILD_TESTING=OFF
-  - cmake --build . --config Debug
+  - cmake --build . --config Release
   - cd ../
   - mkdir VWSI
   - mkdir VWSI\include
-  - xcopy Build\Debug\lib\Debug VWSI\ /s/h/e/k/f/c
-  - xcopy Build\Debug\include VWSI\include\ /s/h/e/k/f/c
+  - xcopy build\Release\lib\Release VWSI\ /s/h/e/k/f/c
+# - xcopy build\Release\include VWSI\include\ /s/h/e/k/f/c
+  - xcopy include VWSI\include\ /s/h/e/k/f/c
 
 artifacts:
   - path: vwsi\

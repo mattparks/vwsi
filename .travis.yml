@@ -63,8 +63,8 @@ matrix:
 script:
 - cd $TRAVIS_BUILD_DIR
 - git submodule update --init --recursive
-- mkdir Build
-- cd Build
+- mkdir build
+- cd build
 - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       curl https://vulkan.lunarg.com/sdk/download/1.1.77.0/linux/vulkansdk-linux-x86_64-1.1.77.0.tar.gz -L -o vulkan.tar.gz
@@ -72,6 +72,9 @@ script:
       source 1.1.77.0/setup-env.sh
       cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DVWSI_INSTALL=ON -DVWSI_BUILD_TESTING=OFF
     else
+      curl https://vulkan.lunarg.com/sdk/download/1.1.77.0/mac/vulkansdk-macos-1.1.77.0.tar.gz -L -o vulkan.tar.gz
+      tar zxf vulkan.tar.gz
+#     source vulkansdk-macos-1.1.77.0/setup-env.sh
       cmake .. -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DVWSI_INSTALL=OFF -DVWSI_BUILD_TESTING=OFF
     fi
 - ls

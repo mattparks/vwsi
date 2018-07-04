@@ -119,7 +119,7 @@ void CallbackChar(WsiShell shell, const char *str)
 
 void CallbackKey(WsiShell shell, WsiKey key, WsiAction action, WsiModifierFlags modFlags)
 {
-	printf("%i, %i\n", key, action);
+//	printf("%i, %i\n", key, action);
 }
 
 void CallbackMouseButton(WsiShell shell, WsiMouseButton mouseButton, WsiAction action)
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 	callbacks->pfnJoystickButton = CallbackJoystickButton;
 	callbacks->pfnJoystickAxis = CallbackJoystickAxis;
 
-//	ErrorVk(wsiCmdSetResizable(shell, false));
+	ErrorVk(wsiCmdSetResizable(shell, false));
 //	ErrorVk(wsiCmdSetSize(shell, 720, 480));
 //	ErrorVk(wsiCmdSetPosition(shell, 300, 200));
 //	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], true));
