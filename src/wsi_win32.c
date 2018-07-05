@@ -37,7 +37,6 @@ typedef struct WsiShell_T
 	// Cursor movement.
 	int cursorTracked_;
 	int cursorDisabled_;
-	int cursorPosX, cursorPosY;
 	WsiCursorMode cursorMode_;
 	HCURSOR cursor_;
 
@@ -289,66 +288,55 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 	case WM_INPUT:
 	{
-		HRAWINPUT ri = (HRAWINPUT) lParam;
+		UINT dwSize;
+		GetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 
-		UINT size;
-		GetRawInputData(ri, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));
-
-		if (size > (UINT) shell->rawInputSize_)
+		if (dwSize > (UINT) shell->rawInputSize_)
 		{
 			free(shell->rawInput_);
-			shell->rawInput_ = calloc(size, 1);
-			shell->rawInputSize_ = size;
+			shell->rawInput_ = calloc(dwSize, 1);
+			shell->rawInputSize_ = dwSize;
 		}
 
-		size = shell->rawInputSize_;
+		int size = shell->rawInputSize_;
 
-		if (GetRawInputData(ri, RID_INPUT, shell->rawInput_, &size,
+		if (GetRawInputData((HRAWINPUT) lParam, RID_INPUT, shell->rawInput_, &size,
 			sizeof(RAWINPUTHEADER)) == (UINT) -1)
 		{
 			reportError("Win32: Failed to retrieve raw input data");
 			break;
 		}
 
-		RAWINPUT* data = shell->rawInput_;
-		uint32_t x, y;
-		float dx, dy;
+		RAWINPUT* raw = shell->rawInput_;
 
-		if (data->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
+		if (raw->header.dwType == RIM_TYPEKEYBOARD)
 		{
-			x = data->data.mouse.lLastX;
-			y = data->data.mouse.lLastX;
-			dx = x - shell->cursorPosX;
-			dy = y - shell->cursorPosY;
+			// WIN32_TO_WSI_KEY[raw->data.keyboard.VKey & 0x1FF]
 		}
-		else
+		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
 			POINT ptCursor;
 			GetCursorPos(&ptCursor);
 			ScreenToClient(shell->hwnd_, &ptCursor);
+			RECT windowRect;
+			GetClientRect(shell->hwnd_, &windowRect);
 
-			dx = data->data.mouse.lLastX;
-			dy = data->data.mouse.lLastY;
-			x = ptCursor.x;
-			y = ptCursor.y;
-		}
+			if (shell->callbacks_.pfnCursorPosition != NULL)
+			{
+				float width = (float)(windowRect.right - windowRect.left);
+				float height = (float)(windowRect.bottom - windowRect.top);
 
-		shell->cursorPosX = x;
-		shell->cursorPosY = y;
-
-		if (shell->callbacks_.pfnCursorPosition != NULL)
-		{
-			shell->callbacks_.pfnCursorPosition(shell, x, y, dx, dy);
+				shell->callbacks_.pfnCursorPosition(shell, (float)ptCursor.x / width, (float)ptCursor.y / height,
+					-(float)raw->data.mouse.lLastX / width, -(float)raw->data.mouse.lLastY / height);
+			}
 		}
 
 		break;
 	}
     case WM_MOUSEMOVE:
     {
-		int x = GET_X_LPARAM(lParam);
-		int y = GET_Y_LPARAM(lParam);
-		shell->cursorPosX = x;
-		shell->cursorPosY = y;
+	//	int x = GET_X_LPARAM(lParam);
+	// 	int y = GET_Y_LPARAM(lParam);
 
 		if (!shell->cursorTracked_)
 		{
@@ -518,6 +506,11 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             uint32_t id = pointerInfo.pointerId;
             POINT pt = pointerInfo.ptPixelLocation;
             ScreenToClient(shell->hwnd_, &pt);
+			RECT windowRect;
+			GetClientRect(shell->hwnd_, &windowRect);
+
+			float width = (float)(windowRect.right - windowRect.left);
+			float height = (float)(windowRect.bottom - windowRect.top);
 
             switch (message)
             {
@@ -540,7 +533,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (shell->callbacks_.pfnTouch != NULL)
 			{
-				shell->callbacks_.pfnTouch(shell, id, x, y, action);
+				shell->callbacks_.pfnTouch(shell, id, (float)x / width, (float)y / height, action);
 			}
         }
 		break;
@@ -716,9 +709,19 @@ void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 
 void createInput(WsiShell shell)
 {
-	const RAWINPUTDEVICE rid = { HID_USAGE_PAGE_GENERIC, HID_USAGE_GENERIC_MOUSE, RIDEV_INPUTSINK, shell->hwnd_ };
+	RAWINPUTDEVICE Rid[2];
 
-	if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
+	Rid[0].usUsagePage = 0x01;
+	Rid[0].usUsage = 0x02;
+	Rid[0].dwFlags = 0;
+	Rid[0].hwndTarget = shell->hwnd_;
+
+	Rid[1].usUsagePage = 0x01;
+	Rid[1].usUsage = 0x06;
+	Rid[1].dwFlags = 0;
+	Rid[1].hwndTarget = shell->hwnd_;
+
+	if (!RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])))
 	{
 		reportError("Win32: Failed to register raw input device");
 	}

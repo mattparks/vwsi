@@ -100,7 +100,7 @@ void CallbackClose(WsiShell shell)
 	m_closed = true;
 }
 
-void CallbackCursorPosition(WsiShell shell, uint32_t x, uint32_t y, float dx, float dy)
+void CallbackCursorPosition(WsiShell shell, float x, float y, float dx, float dy)
 {
 }
 
@@ -108,7 +108,7 @@ void CallbackCursorEnter(WsiShell shell, VkBool32 entered)
 {
 }
 
-void CallbackCursorScroll(WsiShell shell, int32_t x, int32_t y)
+void CallbackCursorScroll(WsiShell shell, float x, float y)
 {
 }
 
@@ -126,7 +126,7 @@ void CallbackMouseButton(WsiShell shell, WsiMouseButton mouseButton, WsiAction a
 {
 }
 
-void CallbackTouch(WsiShell shell, uint32_t id, uint32_t x, uint32_t y, WsiAction action)
+void CallbackTouch(WsiShell shell, uint32_t id, float x, float y, WsiAction action)
 {
 }
 

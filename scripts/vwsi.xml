@@ -75,8 +75,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     <type>WsiShell</type>                                        shell);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>uint32_t</type>                                        x,
-    <type>uint32_t</type>                                        y
+    <type>float</type>                                           x,
+    <type>float</type>                                           y
     <type>float</type>                                           dx,
     <type>float</type>                                           dy);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
@@ -84,8 +84,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
     <type>VkBool32</type>                                        entered);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorScrollCallback</name>)(
     <type>WsiShell</type>                                        shell,
-    <type>int32_t</type>                                         x,
-    <type>int32_t</type>                                         y);</type>
+    <type>float</type>                                           x,
+    <type>float</type>                                           y);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCharCallback</name>)(
     <type>WsiShell</type>                                        shell,
     const <type>char</type>*                                     str);</type>
@@ -101,8 +101,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkTouchCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>uint32_t</type>                                        id,
-    <type>uint32_t</type>                                        x,
-    <type>uint32_t</type>                                        y,
+    <type>float</type>                                           x,
+    <type>float</type>                                           y,
     <type>WsiAction</type>                                       action);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkJoystickConnectCallback</name>)(
     <type>WsiShell</type>                                        shell,

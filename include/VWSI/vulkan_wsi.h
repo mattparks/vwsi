@@ -269,8 +269,8 @@ typedef void (VKAPI_PTR *PFN_vkCloseCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorPositionCallback)(
     WsiShell                                        shell,
-	uint32_t                                        x,
-	uint32_t                                        y,
+	float                                           x,
+	float                                           y,
 	float                                           dx,
 	float                                           dy);
 
@@ -280,8 +280,8 @@ typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorScrollCallback)(
     WsiShell                                        shell,
-    int32_t                                         x,
-    int32_t                                         y);
+	float                                           x,
+	float                                           y);
 
 typedef void (VKAPI_PTR *PFN_vkMouseButtonCallback)(
     WsiShell                                        shell,
@@ -301,8 +301,8 @@ typedef void (VKAPI_PTR *PFN_vkKeyCallback)(
 typedef void (VKAPI_PTR *PFN_vkTouchCallback)(
     WsiShell                                        shell,
     uint32_t                                        id,
-    uint32_t                                        x,
-    uint32_t                                        y,
+	float                                           x,
+	float                                           y,
     WsiAction                                       action);
 
 typedef void (VKAPI_PTR *PFN_vkJoystickConnectCallback)(
