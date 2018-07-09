@@ -43,6 +43,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
             <comment>Bitmask types</comment>
         <type requires="WsiModifierFlagBits"             category="bitmask">typedef <type>VkFlags</type> <name>WsiModifierFlags</name>;</type>
+        <type requires="WsiShownFlagBits"             category="bitmask">typedef <type>VkFlags</type> <name>WsiShownFlags</name>;</type>
 
             <comment>Types which can be void pointers or class pointers, selected at compile time</comment>
         <type category="handle"><type>VK_DEFINE_HANDLE</type>(<name>WsiMonitor</name>)</type>
@@ -53,7 +54,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <type name="WsiMouseButton" category="enum"/>
         <type name="WsiJoystick" category="enum"/>
         <type name="WsiAction" category="enum"/>
+        <type name="WsiMessage" category="enum"/>
+        <type name="WsiMessageResponse" category="enum"/>
         <type name="WsiModifierFlagBits" category="enum"/>
+        <type name="WsiShownFlagBits" category="enum"/>
         <type name="WsiCursorMode" category="enum"/>
         <type name="WsiStructureType" category="enum"/>
 
@@ -76,7 +80,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorPositionCallback</name>)(
     <type>WsiShell</type>                                        shell,
     <type>float</type>                                           x,
-    <type>float</type>                                           y
+    <type>float</type>                                           y,
     <type>float</type>                                           dx,
     <type>float</type>                                           dy);</type>
         <type category="funcpointer">typedef void (VKAPI_PTR *<name>PFN_vkCursorEnterCallback</name>)(
@@ -324,6 +328,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <enum value="1"     name="WSI_ACTION_RELEASE"/>
         <enum value="2"     name="WSI_ACTION_REPEAT"/>
     </enums>
+    <enums name="WsiMessage" type="enum" comment="Popup action message enumerant">
+        <enum value="0"     name="WSI_MESSAGE_YES"/>
+        <enum value="1"     name="WSI_MESSAGE_YESCANCEL"/>
+        <enum value="2"     name="WSI_MESSAGE_RETRYCANCEL"/>
+        <enum value="3"     name="WSI_MESSAGE_YESNO"/>
+        <enum value="4"     name="WSI_MESSAGE_YESNOCANCEL"/>
+    </enums>
+    <enums name="WsiMessageResponse" type="enum" comment="Popup action message responce enumerant">
+        <enum value="0"     name="WSI_MESSAGE_RESPONCE_ABORT"/>
+        <enum value="1"     name="WSI_MESSAGE_RESPONCE_YES"/>
+        <enum value="2"     name="WSI_MESSAGE_RESPONCE_NO"/>
+        <enum value="3"     name="WSI_MESSAGE_RESPONCE_CANCEL"/>
+    </enums>
     <enums name="WsiModifierFlagBits" type="bitmask" comment="Action modifier bitmask enumerant">
         <enum bitpos="0"     name="WSI_MODIFIER_SHIFT_BIT"/>
         <enum bitpos="1"     name="WSI_MODIFIER_CONTROL_BIT"/>
@@ -331,6 +348,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         <enum bitpos="3"     name="WSI_MODIFIER_SUPER_BIT"/>
         <enum bitpos="4"     name="WSI_MODIFIER_CAPS_LOCK_BIT"/>
         <enum bitpos="5"     name="WSI_MODIFIER_NUM_LOCK_BIT"/>
+    </enums>
+    <enums name="WsiShownFlagBits" type="bitmask" comment="Action shown bitmask enumerant">
+        <enum bitpos="0"     name="WSI_SHOWN_HIDDEN_BIT"/>
+        <enum bitpos="1"     name="WSI_SHOWN_SHOWN_BIT"/>
+        <enum bitpos="2"     name="WSI_SHOWN_MINIMIZED_BIT"/>
+        <enum bitpos="3"     name="WSI_SHOWN_MAXIMIZED_BIT"/>
+        <enum bitpos="4"     name="WSI_SHOWN_RESTORED_BIT"/>
     </enums>
     <enums name="WsiCursorMode" type="enum" comment="Cursor display enumerant">
         <enum value="0"     name="WSI_CURSOR_MODE_NORMAL"/>
@@ -386,6 +410,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <param optional="true"><type>WsiShellCallbacks</type>** <name>ppCallbacks</name></param>
         </command>
         <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdMessageBox</name></proto>
+            <param optional="true"><type>WsiShell</type> <name>shell</name></param>
+            <param>const <type>char</type>* <name>title</name></param>
+            <param>const <type>char</type>* <name>message</name></param>
+            <param><type>WsiMessage</type> <name>type</name></param>
+            <param><type>WsiMessageResponse</type>* <name>pResponse</name></param>
+        </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
             <proto><type>VkResult</type> <name>wsiCmdSetResizable</name></proto>
             <param><type>WsiShell</type> <name>shell</name></param>
             <param><type>VkBool32</type> <name>resizable</name></param>
@@ -434,6 +466,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <param><type>uint32_t</type> <name>x</name></param>
             <param><type>uint32_t</type> <name>y</name></param>
         </command>
+        <command successcodes="VK_SUCCESS,VK_INCOMPLETE" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_INITIALIZATION_FAILED">
+            <proto><type>VkResult</type> <name>wsiCmdSetShown</name></proto>
+            <param><type>WsiShell</type> <name>shell</name></param>
+            <param><type>WsiShownFlags</type> <name>shownFlags</name></param>
+        </command>
     </commands>
 
     <feature api="vwsi" name="VWSI_VERSION_1_0" number="1.0" comment="Vulkan WSI API interface definitions">
@@ -455,6 +492,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
         </require>
         <require comment="Shell commands">
             <command name="wsiCmdPollEvents"/>
+            <command name="wsiCmdMessageBox"/>
             <command name="wsiCmdSetResizable"/>
             <command name="wsiCmdSetSize"/>
             <command name="wsiCmdSetPosition"/>
@@ -464,6 +502,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
             <command name="wsiCmdSetCursor"/>
             <command name="wsiCmdSetCursorMode"/>
             <command name="wsiCmdSetCursorPos"/>
+            <command name="wsiCmdSetShown"/>
         </require>
     </feature>
 

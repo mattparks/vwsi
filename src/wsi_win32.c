@@ -821,6 +821,38 @@ VkResult wsiCmdPollEvents(WsiShell shell)
 	return VK_SUCCESS;
 }
 
+VkResult wsiCmdMessageBox(WsiShell shell, const char *title, const char *message, WsiMessage type, WsiMessageResponse *pResponse)
+{
+	UINT uType = 0;
+
+	if (type == WSI_MESSAGE_YES)
+		uType = MB_OK;
+	else if (type == WSI_MESSAGE_YESCANCEL)
+		uType = MB_OKCANCEL;
+	else if (type == WSI_MESSAGE_RETRYCANCEL)
+		uType = MB_RETRYCANCEL;
+	else if (type == WSI_MESSAGE_YESNO)
+		uType = MB_YESNO;
+	else if (type == WSI_MESSAGE_YESNOCANCEL)
+		uType = MB_YESNOCANCEL;
+
+	int responce = MessageBox(shell == NULL ? NULL : shell->hwnd_, message, title, uType);
+
+	if (pResponse != NULL)
+	{
+		if (responce == IDABORT)
+			*pResponse = WSI_MESSAGE_RESPONCE_ABORT;
+		else if (responce == IDCANCEL)
+			*pResponse = WSI_MESSAGE_RESPONCE_CANCEL;
+		else if (responce == IDOK || responce == IDYES)
+			*pResponse = WSI_MESSAGE_RESPONCE_YES;
+		else if (responce == IDNO)
+			*pResponse = WSI_MESSAGE_RESPONCE_NO;
+	}
+
+	return VK_SUCCESS;
+}
+
 VkResult wsiCmdSetResizable(WsiShell shell, VkBool32 resizable)
 {
 	return VK_SUCCESS; // TODO
@@ -888,9 +920,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 		updateCursorClip(shell);
 
 		if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
-    	{
     	    reportError("Win32: Failed to register raw input device");
-    	}
 	}
 	else
 	{
@@ -901,9 +931,7 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 		updateCursorImage(shell);
 
     	if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
-    	{
     	    reportError("Win32: Failed to remove raw input device");
-    	}
 	}
 
 	return VK_SUCCESS;
@@ -912,6 +940,25 @@ VkResult wsiCmdSetCursorMode(WsiShell shell, WsiCursorMode mode)
 VkResult wsiCmdSetCursorPos(WsiShell shell, uint32_t x, uint32_t y)
 {
 	SetCursorPos(x, y);
+	return VK_SUCCESS;
+}
+
+VkResult wsiCmdSetShown(WsiShell shell, WsiShownFlags shownFlags)
+{
+	int nCmdShow = 0;
+
+	if (shownFlags & WSI_SHOWN_HIDDEN_BIT)
+		nCmdShow |= SW_HIDE;
+	if (shownFlags & WSI_SHOWN_SHOWN_BIT)
+		nCmdShow |= SW_SHOW;
+	if (shownFlags & WSI_SHOWN_MINIMIZED_BIT)
+		nCmdShow |= SW_MINIMIZE;
+	if (shownFlags & WSI_SHOWN_MAXIMIZED_BIT)
+		nCmdShow |= SW_MAXIMIZE;
+	if (shownFlags & WSI_SHOWN_RESTORED_BIT)
+		nCmdShow |= SW_RESTORE;
+
+	ShowWindow(shell->hwnd_, nCmdShow);
 	return VK_SUCCESS;
 }
 

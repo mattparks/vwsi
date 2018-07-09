@@ -221,6 +221,29 @@ typedef enum WsiJoystick {
     WSI_JOYSTICK_MAX_ENUM = 0x7FFFFFFF
 } WsiJoystick;
 
+typedef enum WsiMessage {
+    WSI_MESSAGE_YES = 0,
+    WSI_MESSAGE_YESCANCEL = 1,
+    WSI_MESSAGE_RETRYCANCEL = 2,
+    WSI_MESSAGE_YESNO = 3,
+    WSI_MESSAGE_YESNOCANCEL = 4,
+    WSI_MESSAGE_BEGIN_RANGE = WSI_MESSAGE_YES,
+    WSI_MESSAGE_END_RANGE = WSI_MESSAGE_YESNOCANCEL,
+    WSI_MESSAGE_RANGE_SIZE = (WSI_MESSAGE_YESNOCANCEL - WSI_MESSAGE_YES + 1),
+    WSI_MESSAGE_MAX_ENUM = 0x7FFFFFFF
+} WsiMessage;
+
+typedef enum WsiMessageResponse {
+    WSI_MESSAGE_RESPONCE_ABORT = 0,
+    WSI_MESSAGE_RESPONCE_YES = 1,
+    WSI_MESSAGE_RESPONCE_NO = 2,
+    WSI_MESSAGE_RESPONCE_CANCEL = 3,
+    WSI_MESSAGE_RESPONSE_BEGIN_RANGE = WSI_MESSAGE_RESPONCE_ABORT,
+    WSI_MESSAGE_RESPONSE_END_RANGE = WSI_MESSAGE_RESPONCE_CANCEL,
+    WSI_MESSAGE_RESPONSE_RANGE_SIZE = (WSI_MESSAGE_RESPONCE_CANCEL - WSI_MESSAGE_RESPONCE_ABORT + 1),
+    WSI_MESSAGE_RESPONSE_MAX_ENUM = 0x7FFFFFFF
+} WsiMessageResponse;
+
 typedef enum WsiCursorMode {
     WSI_CURSOR_MODE_NORMAL = 0,
     WSI_CURSOR_MODE_HIDDEN = 1,
@@ -242,6 +265,16 @@ typedef enum WsiModifierFlagBits {
     WSI_MODIFIER_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } WsiModifierFlagBits;
 typedef VkFlags WsiModifierFlags;
+
+typedef enum WsiShownFlagBits {
+    WSI_SHOWN_HIDDEN_BIT = 0x00000001,
+    WSI_SHOWN_SHOWN_BIT = 0x00000002,
+    WSI_SHOWN_MINIMIZED_BIT = 0x00000004,
+    WSI_SHOWN_MAXIMIZED_BIT = 0x00000008,
+    WSI_SHOWN_RESTORED_BIT = 0x00000010,
+    WSI_SHOWN_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
+} WsiShownFlagBits;
+typedef VkFlags WsiShownFlags;
 
 typedef struct WsiMonitorProperties {
     uint32_t    width;
@@ -269,10 +302,10 @@ typedef void (VKAPI_PTR *PFN_vkCloseCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorPositionCallback)(
     WsiShell                                        shell,
-	float                                           x,
-	float                                           y,
-	float                                           dx,
-	float                                           dy);
+    float                                           x,
+    float                                           y,
+    float                                           dx,
+    float                                           dy);
 
 typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
     WsiShell                                        shell,
@@ -280,8 +313,8 @@ typedef void (VKAPI_PTR *PFN_vkCursorEnterCallback)(
 
 typedef void (VKAPI_PTR *PFN_vkCursorScrollCallback)(
     WsiShell                                        shell,
-	float                                           x,
-	float                                           y);
+    float                                           x,
+    float                                           y);
 
 typedef void (VKAPI_PTR *PFN_vkMouseButtonCallback)(
     WsiShell                                        shell,
@@ -301,8 +334,8 @@ typedef void (VKAPI_PTR *PFN_vkKeyCallback)(
 typedef void (VKAPI_PTR *PFN_vkTouchCallback)(
     WsiShell                                        shell,
     uint32_t                                        id,
-	float                                           x,
-	float                                           y,
+    float                                           x,
+    float                                           y,
     WsiAction                                       action);
 
 typedef void (VKAPI_PTR *PFN_vkJoystickConnectCallback)(
@@ -371,6 +404,7 @@ typedef void (VKAPI_PTR *PFN_wsiGetShellCallbacks)(WsiShell shell, WsiShellCallb
 typedef VkResult (VKAPI_PTR *PFN_wsiEnumerateShellExtensions)(WsiShell shell, uint32_t* pExtensionCount, const char** pExtensions);
 typedef VkResult (VKAPI_PTR *PFN_wsiCreateSurface)(WsiShell shell, VkInstance instance, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdPollEvents)(WsiShell shell);
+typedef VkResult (VKAPI_PTR *PFN_wsiCmdMessageBox)(WsiShell shell, const char* title, const char* message, WsiMessage type, WsiMessageResponse* pResponse);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetResizable)(WsiShell shell, VkBool32 resizable);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetSize)(WsiShell shell, uint32_t width, uint32_t height);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetPosition)(WsiShell shell, uint32_t x, uint32_t y);
@@ -380,6 +414,7 @@ typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetIcon)(WsiShell shell, WsiImage icon);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursor)(WsiShell shell, WsiImage cursor);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursorMode)(WsiShell shell, WsiCursorMode mode);
 typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetCursorPos)(WsiShell shell, uint32_t x, uint32_t y);
+typedef VkResult (VKAPI_PTR *PFN_wsiCmdSetShown)(WsiShell shell, WsiShownFlags shownFlags);
 
 #ifndef VK_NO_PROTOTYPES
 VKAPI_ATTR VkResult VKAPI_CALL wsiEnumerateMonitors(
@@ -416,6 +451,13 @@ VKAPI_ATTR VkResult VKAPI_CALL wsiCreateSurface(
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdPollEvents(
     WsiShell                                    shell);
+
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdMessageBox(
+    WsiShell                                    shell,
+    const char*                                 title,
+    const char*                                 message,
+    WsiMessage                                  type,
+    WsiMessageResponse*                         pResponse);
 
 VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetResizable(
     WsiShell                                    shell,
@@ -456,6 +498,10 @@ VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetCursorPos(
     WsiShell                                    shell,
     uint32_t                                    x,
     uint32_t                                    y);
+
+VKAPI_ATTR VkResult VKAPI_CALL wsiCmdSetShown(
+    WsiShell                                    shell,
+    WsiShownFlags                               shownFlags);
 #endif
 
 #ifdef __cplusplus

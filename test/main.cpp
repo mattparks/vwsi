@@ -194,7 +194,11 @@ int main(int argc, char **argv)
 	callbacks->pfnJoystickButton = CallbackJoystickButton;
 	callbacks->pfnJoystickAxis = CallbackJoystickAxis;
 
-	ErrorVk(wsiCmdSetResizable(shell, false));
+//	WsiMessageResponse response = WSI_MESSAGE_RESPONCE_ABORT;
+//	ErrorVk(wsiCmdMessageBox(shell, "Hello World", "This is a option message!", WSI_MESSAGE_YESNO, &response));
+//	printf("Responded with %s\n", response == WSI_MESSAGE_RESPONCE_YES ? "yes" : "no");
+
+//	ErrorVk(wsiCmdSetResizable(shell, false));
 //	ErrorVk(wsiCmdSetSize(shell, 720, 480));
 //	ErrorVk(wsiCmdSetPosition(shell, 300, 200));
 //	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], true));
@@ -203,6 +207,7 @@ int main(int argc, char **argv)
 //	ErrorVk(wsiCmdSetCursor(shell, &cursor));
 //	ErrorVk(wsiCmdSetCursorMode(shell, WSI_CURSOR_MODE_DISABLED));
 //	ErrorVk(wsiCmdSetCursorPos(shell, 100, 100));
+//	ErrorVk(wsiCmdSetShown(shell, WSI_SHOWN_SHOWN_BIT | WSI_SHOWN_MINIMIZED_BIT));
 
 	VkApplicationInfo applicationInfo = {};
 	applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;

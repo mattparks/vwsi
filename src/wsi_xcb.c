@@ -295,4 +295,9 @@ VkResult wsiCmdSetCursorPos(WsiShell shell, uint32_t x, uint32_t y)
 	return VK_SUCCESS;
 }
 
+VkResult wsiCmdSetShown(WsiShell shell, WsiShownFlags shownFlags)
+{
+	return VK_SUCCESS;
+}
+
 #endif // VK_USE_PLATFORM_XCB_KHR
