@@ -56,13 +56,15 @@ void handle_event(WsiShell shell, const xcb_generic_event_t *ev)
 		{
 			shell->callbacks_.pfnSize(shell, notify->width, notify->height, 0, 0);
 		}
-	}
+
 		break;
+	}
 	case XCB_KEY_PRESS:
 	{
 		const xcb_key_press_event_t *press = (xcb_key_press_event_t *)ev;
-	}
+
 		break;
+	}
 	case XCB_CLIENT_MESSAGE:
 	{
 		const xcb_client_message_event_t *msg = (xcb_client_message_event_t *)ev;
@@ -74,9 +76,9 @@ void handle_event(WsiShell shell, const xcb_generic_event_t *ev)
 				shell->callbacks_.pfnClose(shell);
 			}
 		}
-	} break;
-	default:
+
 		break;
+	}
 	}
 }
 
@@ -248,6 +250,11 @@ VkResult wsiCmdPollEvents(WsiShell shell)
 	}
 
 	return VK_SUCCESS;
+}
+
+VkResult wsiCmdMessageBox(WsiShell shell, const char *title, const char *message, WsiMessage type, WsiMessageResponse *pResponse)
+{
+	return VK_SUCCESS; // TODO
 }
 
 VkResult wsiCmdSetResizable(WsiShell shell, VkBool32 resizable)
