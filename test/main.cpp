@@ -201,7 +201,8 @@ int main(int argc, char **argv)
 //	ErrorVk(wsiCmdSetResizable(shell, false));
 //	ErrorVk(wsiCmdSetSize(shell, 720, 480));
 //	ErrorVk(wsiCmdSetPosition(shell, 300, 200));
-//	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], true));
+	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], true));
+	ErrorVk(wsiCmdSetFullscreen(shell, monitors[0], false));
 //	ErrorVk(wsiCmdSetName(shell, "New Name"));
 //	ErrorVk(wsiCmdSetIcon(shell, &icon));
 //	ErrorVk(wsiCmdSetCursor(shell, &cursor));

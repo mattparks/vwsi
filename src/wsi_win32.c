@@ -18,6 +18,9 @@
 #define HID_USAGE_GENERIC_MOUSE ((USHORT) 0x02)
 #endif
 
+#define STYLE_NORMAL (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_OVERLAPPEDWINDOW)
+#define STYLE_FULLSCREEN (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_SYSMENU | WS_POPUP)
+
 typedef struct WsiMonitor_T
 {
 	uint32_t id_;
@@ -33,6 +36,10 @@ typedef struct WsiShell_T
 	HWND hwnd_;
 	HMODULE hmodule_;
 	PFN_vkGetInstanceProcAddr vkproc_;
+
+	// Fullscreen.
+	int nw_, nh_;
+	int fullscreen_;
 
 	// Cursor movement.
 	int cursorTracked_;
@@ -230,7 +237,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if (shell->callbacks_.pfnSize != NULL)
 		{
-			shell->callbacks_.pfnSize(shell, w, h, iconified, FALSE);
+			shell->callbacks_.pfnSize(shell, w, h, iconified, shell->fullscreen_);
 		}
 
 		break;
@@ -694,12 +701,10 @@ void createWindow(WsiShell shell, WsiShellCreateInfo createInfo)
 
 	RegisterClassEx(&win_class);
 
-	const DWORD win_style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_OVERLAPPEDWINDOW;
-
 	RECT win_rect = {0, 0, createInfo.width, createInfo.height};
-	AdjustWindowRect(&win_rect, win_style, 0);
+	AdjustWindowRect(&win_rect, STYLE_NORMAL, 0);
 
-	shell->hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, "Shell", createInfo.pName, win_style, createInfo.x, createInfo.y,
+	shell->hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, "Shell", createInfo.pName, STYLE_NORMAL, createInfo.x, createInfo.y,
 		win_rect.right - win_rect.left, win_rect.bottom - win_rect.top, NULL, NULL, shell->hinstance_, NULL);
 
 	SetForegroundWindow(shell->hwnd_);
@@ -878,7 +883,28 @@ VkResult wsiCmdSetName(WsiShell shell, const char *pName)
 
 VkResult wsiCmdSetFullscreen(WsiShell shell, WsiMonitor monitor, VkBool32 fullscreen)
 {
-	return VK_SUCCESS; // TODO
+	int displayWidth = GetSystemMetrics(SM_CXSCREEN);
+	int displayHeight = GetSystemMetrics(SM_CYSCREEN);
+
+	if (fullscreen)
+	{
+		RECT windowRect;
+		GetClientRect(shell->hwnd_, &windowRect);
+		shell->nw_ = windowRect.right - windowRect.left;
+		shell->nh_ = windowRect.bottom - windowRect.top;
+
+		SetWindowLongPtr(shell->hwnd_, GWL_STYLE, STYLE_FULLSCREEN);
+		MoveWindow(shell->hwnd_, 0, 0, displayWidth, displayHeight, TRUE);
+	}
+	else
+	{
+		SetWindowLongPtr(shell->hwnd_, GWL_STYLE, STYLE_NORMAL);
+		MoveWindow(shell->hwnd_, (displayWidth - shell->nw_) / 2, (displayHeight - shell->nh_) / 2, shell->nw_, shell->nh_, TRUE);
+	}
+
+	shell->fullscreen_ = fullscreen;
+
+	return VK_SUCCESS;
 }
 
 VkResult wsiCmdSetIcon(WsiShell shell, WsiImage icon)
